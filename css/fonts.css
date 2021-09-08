@@ -1,0 +1,24 @@
+@font-face {
+    font-family: "halloween";
+    src: url("../fonts/Halloween.ttf");
+}
+@font-face {
+    font-family: "halloween_too";
+    src: url("../fonts/Halloween_too.ttf");
+}
+@font-face {
+    font-family: "stranger";
+    src: url("../fonts/stranger.ttf");
+}
+.halloween {
+    font-family: "halloween";
+    font-size: 50px;
+}
+.halloween_t {
+    font-family: "halloween_too";
+    font-size: 50px;
+}
+.stranger{
+    font-family: "stranger";
+    font-size: 25px;
+}
