@@ -1,0 +1,28 @@
+ html {
+    height: 100%;
+  }
+.bg-image{
+    background-image: url("../img/fondoInterfaz.png");;
+    height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.diez_porc{
+    width: 10%;
+}
+.navbar.transparent.navbar-inverse .navbar-inner {
+    background: rgba(0,0,0,0.4);
+ }
+ .ml_auto{
+    text-align: end;
+    width: 20%;
+ }
+ .progress{
+    width: 30%;
+    height: 4rem;
+ }
+ .navbar{
+    
+    width: 100%;
+ }
