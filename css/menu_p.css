@@ -1,6 +1,15 @@
 
+@keyframes bottonClick {
+    from{	transform: translateY(0px);}
+    to{	transform: translateY(3px);}
+}
 .btnsmenus > img {
     width: 90%;
+}
+.btnsmenus:active {
+    animation-name: bottonClick;
+    animation-duration: 0.15s;
+    animation-fill-mode: both;
 }
 .config > img{
     width: 20%;
