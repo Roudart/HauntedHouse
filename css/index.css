@@ -1,0 +1,42 @@
+body, html {
+    height: 100%;
+  }
+.bg-image{
+    background-image: url("../img/hallowen_background.jpg");
+    height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: 0;
+  background-size: calc(100% + 50px);
+}
+
+.btnPlay{
+  width: 20%;
+  transition-duration: 0.4s;
+}
+.logoHaunted{
+  width: 40%;
+}
+
+@keyframes bottonHover {
+    from{	transform: translateY(0px);}
+    to{	transform: translateY(2px);}
+}
+@keyframes bottonClick {
+    from{	transform: translateY(0px);}
+    to{	transform: translateY(3px);}
+}
+
+.btnPlay:hover{
+	size: 100%;
+  width: 21%; 
+}
+
+.btnPlay:active {
+  animation-name: bottonClick;
+  animation-duration: 0.15s;
+  animation-fill-mode: both;
+}

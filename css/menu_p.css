@@ -1,0 +1,45 @@
+
+@keyframes bottonClick {
+    from{	transform: translateY(0px);}
+    to{	transform: translateY(3px);}
+}
+.btnsmenus > img {
+    width: 90%;
+}
+.btnsmenus:active {
+    animation-name: bottonClick;
+    animation-duration: 0.15s;
+    animation-fill-mode: both;
+}
+.config > img{
+    width: 20%;
+}
+body{
+    background-color: black;
+}
+
+.container {
+    position: relative;
+    text-align: center;
+    color: white;
+  }
+  .container{
+      margin-bottom: 20px;
+      padding: 0;
+  }
+  .contenedoropciones{
+      padding-left: 50px;
+      padding-right: 50px;
+  }
+  .top-left {
+    position: absolute;
+    top: 8px;
+    left: 16px;
+  }
+  /* Centered text */
+  .centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }

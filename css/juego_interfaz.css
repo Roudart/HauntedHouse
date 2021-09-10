@@ -1,0 +1,73 @@
+ html {
+    height: 100%;
+  }
+.bg-image{
+    background-image: url("../img/fondoInterfaz.png");;
+    height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.diez_porc{
+    width: 10%;
+}
+.navbar.transparent.navbar-inverse .navbar-inner {
+    background: rgba(0,0,0,0.4);
+ }
+ .ml_auto{
+    text-align: end;
+    width: 20%;
+ }
+ .progress{
+    width: 30%;
+    height: 4rem;
+ }
+ .navbar{
+    
+    width: 100%;
+ }
+
+ @keyframes modal {
+    from{top:-300px; opacity: 0;}
+    to{top: 0px; opacity: 1;}
+ }
+
+ /* The Modal (background) */
+.modal {
+   display: none; /* Hidden by default */
+   z-index: 1; /* Sit on top */
+   position: fixed;
+   left: 0;
+   top: 0;
+   width: 100%; /* Full width */
+   height: 100%; /* Full height */
+   background-color: rgb(0,0,0); /* Fallback color */
+   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+   animation-name: modal;
+   animation-duration: 0.5s;
+
+ }
+ 
+ /* Modal Content/Box */
+ .modal-content {
+   background-color: #2e2e2e;
+   margin: 15% auto; /* 15% from the top and centered */
+   padding: 20px;
+   border: 1px solid rgb(27, 27, 27);
+   width: 80%; /* Could be more or less, depending on screen size */
+ }
+ 
+ /* The Close Button */
+ .close {
+   color: #aaa;
+   float: right;
+   font-size: 28px;
+   font-weight: bold;
+ }
+ 
+ .close:hover,
+ .close:focus {
+   color: black;
+   text-decoration: none;
+   cursor: pointer;
+ }
