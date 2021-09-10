@@ -46,3 +46,18 @@ label{
     .blanco{
         color: white;
     }
+
+    
+@keyframes bottonClick {
+  from{	transform: translateY(0px);}
+  to{	transform: translateY(3px);}
+}
+
+.btn-confirm > img {
+  width: 90%;
+}
+.btn-confirm:active {
+  animation-name: bottonClick;
+  animation-duration: 0.15s;
+  animation-fill-mode: both;
+}
