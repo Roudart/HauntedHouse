@@ -9,8 +9,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link href="./css/register_user.css" rel="stylesheet" type="text/css">
     <link href="./css/fonts.css" rel="stylesheet" type="text/css">
-    <title>Ingresar</title>
+    <title>Registrarse</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <script type="text/javascript" src="js/libs/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="js/models/usuario.js"></script>
+    <script type="text/javascript" src="js/models/registrarUsuario.js"></script>
     
   </head>
   <body>
@@ -44,43 +47,23 @@
 
           <!-- Email input -->
           <div class="form-outline mb-4">
-            <input type="email" id="form3Example3" class="form-control form-control-lg"
+            <input type="email" id="usuarioInput" class="form-control form-control-lg"
               placeholder="Ingresar nombre de usuario" />
-            <label class="form-label stranger" for="form3Example3">Usuario</label>
+            <label class="form-label stranger" for="usuarioInput">Usuario</label>
           </div>
 
           <!-- Password input -->
           <div class="form-outline mb-3">
-            <input type="password" id="form3Example4" class="form-control form-control-lg"
+            <input type="password" id="contrasenaInput" class="form-control form-control-lg"
               placeholder="Ingresar contraseña" />
-            <label class="form-label stranger" for="form3Example4">Contraseña</label>
+            <label class="form-label stranger" for="contrasenaInput">Contraseña</label>
           </div>
-
-          <div class="d-flex justify-content-between align-items-center">
-            <!-- Checkbox -->
-            <div class="form-check mb-0">
-              <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" />
-              <label class="form-check-label stranger" for="form2Example3">
-                Recuerdame
-              </label>
-            </div>
-            <!-- <a href="#!" class="text-body">Forgot password?</a> --> 
+          <!-- Password input again -->
+          <div class="form-outline mb-3">
+            <input type="password" id="contrasenaOtraInput" class="form-control form-control-lg"
+              placeholder="Ingrese nuevamente su contraseña" />
+            <label class="form-label stranger" for="contrasenaOtraInput">Confirmar contraseña</label>
           </div>
-
-         <!--  <div class="text-center text-lg-start mt-4 pt-2">
-            <button type="button" class="btn btn-primary btn-lg stranger"
-              style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
-            <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="#!"
-                class="link-danger">Register</a></p> 
-          </div> -->
-
-        <!--   <div class=" my-auto btnsmenus">
-            
-                <img src="./img/pausabtn.png" alt="Snow" style="width:100%;">
-                <div class="centered halloween">Individual</div>
-            
-            
-        </div> -->
 
         <div class="box">
             <img src="./img/entrar.png" class="btn-confirm" alt="Flying Kites">
