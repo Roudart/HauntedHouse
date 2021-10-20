@@ -5,13 +5,18 @@ var clock;
 var players = [];
 var keys = {};
 var isWorldReady = [ false ];
-var distanceCamera = 20;
+var distanceCamera = 25;
 var camPositions = [[-16, 22], [7, 25], [-15, 36]]
 var rayCaster;
 var escenario;
+var mixers = [];
+var mixers2 = [];
+var monito;
+var objs = [];
 
 $(document).ready(function(){
     setupScene();
+    setTimer(10);
 
     rayCaster = new THREE.Raycaster();
 
@@ -21,6 +26,25 @@ $(document).ready(function(){
         scene.add(object);
         isWorldReady[0] = true;
     });
+
+    var FBXLoader = new THREE.FBXLoader();
+    FBXLoader.load('obj/LilGirl_Ani.fbx', (personaje) => {
+        personaje.mixer = new THREE.AnimationMixer(personaje);
+        mixers.push(personaje.mixer);
+
+        var action = personaje.mixer.clipAction(personaje.animations[0]);
+        action.play();
+
+        addPlayer(personaje, 0);});
+    FBXLoader.load('obj/LilGirl_Ani2.fbx', (personaje) => {
+        personaje.mixer = new THREE.AnimationMixer(personaje);
+        mixers.push(personaje.mixer);
+
+        var action = personaje.mixer.clipAction(personaje.animations[0]);
+        action.play();
+
+        addPlayer(personaje, 1);});
+        
 
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
@@ -53,6 +77,13 @@ function onKeyUp(event) {
 function render() {
     requestAnimationFrame(render);
     deltaTime = clock.getDelta();
+    if( mixers.length > 0 ){
+        for ( var i = 0; i < mixers.length; i++ ){
+            mixers[i].update( deltaTime );
+
+        }
+
+    }
 
     // Restear las variables yaw y forward de cada jugador
     for (let i = 0; i < players.length; i++) {
@@ -66,9 +97,9 @@ function render() {
         players[0].yaw = -5;
     }
     if (keys["W"]) {
-        players[0].forward = -5;
-    } else if (keys["S"]) {
         players[0].forward = 5;
+    } else if (keys["S"]) {
+        players[0].forward = -5;
     }
     if (keys["Q"]){
         console.log(camera.position)
@@ -85,7 +116,6 @@ function render() {
         camera.position.x = camPositions[2][0];
         camera.position.z = camPositions[2][1];
     }
-
     // Player 2
     if (keys["J"]) {
         players[1].yaw = 5;
@@ -93,37 +123,20 @@ function render() {
         players[1].yaw = -5;
     }
     if (keys["I"]) {
-        players[1].forward = -5;
-    } else if (keys["K"]) {
         players[1].forward = 5;
-    }
-
-    if (isWorldReady[0]){
-        for (let i = 0; i < players.length; i++) {
-            players[i].rotation.y += players[i].yaw * deltaTime;
-            players[i].translateZ(players[i].forward * deltaTime);
-        }
-        for (var i = 0; i < players.length; i++) {
-            for (var j = 0; j < players[i].rayos.length; j++) {
-                
-                var rayo = players[i].rayos[j];
-        
-                rayCaster.set(players[i].position, rayo);
-                var colisiones = rayCaster.intersectObject(escenario);
-        
-                if(colisiones.length > 0) {
-                    console.log("hola");
-                }
-            }
-        }
+    } else if (keys["K"]) {
+        players[1].forward = -5;
     }
 
 
-
+    for (let i = 0; i < players.length; i++) {
+        players[i].rotation.y += players[i].yaw * deltaTime;
+        players[i].translateZ(players[i].forward * deltaTime);
+    }
 
 
     // camera.position.x = players[0].position.x;
-    // camera.position.z = players[0].position.z + distanceCamera;
+    // camera.position.z = players[0].position.z;
 
     renderer.render(scene, camera);
 }
@@ -135,7 +148,9 @@ function setupScene() {
     camera = new THREE.PerspectiveCamera(60	, visibleSize.width / visibleSize.height, 0.1, 100);
     camera.position.y = distanceCamera
     camera.position.z = distanceCamera
-    camera.rotation.x = THREE.Math.degToRad(-60)
+    camera.rotation.x = THREE.Math.degToRad(-60);
+
+
 
     renderer = new THREE.WebGLRenderer( {precision: "mediump" } );
     renderer.setClearColor(new THREE.Color(0, 0, 0));
@@ -150,33 +165,46 @@ function setupScene() {
     scene.add(grid);
 
 
-	var material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.8, 0.8, 0.8)});
-	var geometry = new THREE.BoxGeometry(1, 1, 1);
-
-    var player1 = new THREE.Mesh(geometry, material);
-    player1.position.x = 1;
-    player1.position.y = 1.8;
-    var player2 = player1.clone()
-    player2.position.x = -1;
-    scene.add(player1);
-    scene.add(player2);
-
-    players.push(player1);
-    players.push(player2);
-
-    players[0].yaw = 0.0;
-    players[0].forward = 0.0;
-    players[1].yaw = 0.0;
-    players[1].forward = 0.0;
-
-    for (let i = 0; i < players.length; i++) {        
-        players[i].rayos = [
-            new THREE.Vector3(0, 1, 0),
-            new THREE.Vector3(0,-1, 0),
-            new THREE.Vector3(0, 0, 1),
-            new THREE.Vector3(0, 0,-1)
-        ];
-    }
 
     $(".bg-image").append(renderer.domElement);
+}
+
+function addPlayer(monito, id){
+    var material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.5, 0.0, 0.0)});
+	var geometry = new THREE.BoxGeometry(0.01, 0.01, 0.01);
+
+	var player = new THREE.Mesh(geometry, material)
+    players.push(player);
+    scene.add(players[id])
+    players[id].yaw = 0;
+    players[id].forward = 0;
+            
+    scene.add(monito);
+    players[id].add(monito);
+}
+
+function setTimer(minutes){
+    // Set the date we're counting down to
+    var countDownDate = new Date().getTime() + (minutes * 1000 * 60);
+
+    // Update the count down every 1 second
+    var x = setInterval(function() {
+
+    // Get today's date and time
+    var now = new Date().getTime();
+
+    // Find the distance between now and the count down date
+    var distance = countDownDate - now;
+
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById("demo").innerHTML = minutes + "m " + seconds + "s ";
+
+    // If the count down is finished, write some text
+    if (distance < 0) {
+        clearInterval(x);
+        document.getElementById("demo").innerHTML = "EXPIRED";
+    }
+    }, 1000);
 }
