@@ -8,6 +8,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link href="./css/juego_interfaz.css" rel="stylesheet" type="text/css">
+    <script src="js/models/facebookScore.js"></script>
     <script src="js/libs/jquery-3.6.0.min.js"></script>
     <script src="js/libs/three2.js"></script>
     <script src="js/libs/MTLLoader.js"></script>
@@ -15,11 +16,11 @@
     <script src="js/libs/OBJLoader.js"></script>
     <script src="js/libs/inflate.min.js"></script>
     <script src="js/graficGame/scene.js"></script>
-    <script src="js/models/facebookScore.js"></script>
+    <script src="js/models/game.js"></script>
     <title>Haunted House!</title>
     <script type="text/javascript">
       function shareFB() {
-        shareScore(1000);
+        shareScore(time);
       }
       </script>
   </head>
@@ -67,6 +68,18 @@
           <li class="list-group-item">Kevin - 4:13</li>
         </ul> <br>
         <button class="btn btn-primary btn-lg" onclick="shareFB();">Comparte tu puntaje en facebook</button>
+      </div>
+      
+    </div>
+    <div id="JuegoAhorcado" class="modal">
+
+                      <!-- Contenido score -->
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <p class="h4" style="color: white;">Ahorcado</p>
+        <ul class="list-group list-group-numbered">
+          <p>Hola</p>
+        </ul> <br>
       </div>
       
     </div>
