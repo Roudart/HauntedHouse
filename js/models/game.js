@@ -4,6 +4,7 @@ function getRndInteger(min, max) { // Obtiene un valor entero entre el rango de 
 
 class GameMode{
     GameOver = false;
+    GameStatus = true;
     MiniGames = [];
     hab1Pos = [ [-20,30], [-12, 23] ];
     hab2Pos = [ [-28, 21], [-4, -2] ];
@@ -28,16 +29,21 @@ class GameMode{
     }
 
     isOver() {
-        for (let i = 0; i < this.MiniGames.length; i++) {
-            if(this.MiniGames[i].completed){
-                this.GameOver = true;
-                continue;
-            }else{
-                this.GameOver = false;
-                return this.GameOver;
+        if(this.GameStatus){
+            for (let i = 0; i < this.MiniGames.length; i++) {
+                if(this.MiniGames[i].completed){
+                    this.GameOver = true;
+                    continue;
+                }else{
+                    this.GameOver = false;
+                    return this.GameOver;
+                }
             }
+            return this.GameOver;
         }
-        return this.GameOver;
+        else {
+            return true;
+        }
     }
 
     GetMiniGameRandomPos(room){

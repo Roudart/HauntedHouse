@@ -2,7 +2,7 @@ var scene, camera, renderer, clock;
 var players = [];
 var keys = {};
 var isWorldReady = [ false ];
-var distanceCamera = 10;
+var distanceCamera = 20;
 var camPositions = [[-16, 22], [7, 25], [-15, 36]]
 var rayCaster;
 var mixers = [];
@@ -37,23 +37,45 @@ $(document).ready(function(){
         addPlayer(personaje, 0);
 
         modelReady = true;
-        FBXLoader.load('obj/Anim_Idle.fbx',
+        FBXLoader.load('obj/Anim_Idle2.fbx',
             (personaAni) => {
                 var action = personaje.mixer.clipAction(personaAni.animations[0]);
                 action.play();
                 actions.push(action);
-
-
-                FBXLoader.load('obj/Anim_Attack1.fbx',
+                
+                FBXLoader.load('obj/Anim_Gana.fbx',
                 (personaAni) => {
                     var action = personaje.mixer.clipAction(personaAni.animations[0]);
                     action.play();
                     actions.push(action);
+
+                    FBXLoader.load('obj/Anim_Attack3.fbx',
+                    (personaAni) => {
+                        var action = personaje.mixer.clipAction(personaAni.animations[0]);
+                        action.play();
+                        actions.push(action);
+
+                        FBXLoader.load('obj/Anim_Pierde.fbx',
+                        (personaAni) => {
+                            var action = personaje.mixer.clipAction(personaAni.animations[0]);
+                            action.play();
+                            actions.push(action);
+            
+                        }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
+                        (error) =>{
+                            console.log(error);
+                        });
+        
+                    }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
+                    (error) =>{
+                        console.log(error);
+                    });
     
                 }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
                 (error) =>{
                     console.log(error);
                 });
+                
 
             }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
             (error) =>{
@@ -67,8 +89,53 @@ $(document).ready(function(){
 
         var action = personaje.mixer.clipAction(personaje.animations[0]);
         action.play();
+        actions2.push(action);
 
         addPlayer(personaje, 1);
+        FBXLoader.load('obj/Anim_Idle2.fbx',
+            (personaAni) => {
+                var action = personaje.mixer.clipAction(personaAni.animations[0]);
+                action.play();
+                actions2.push(action);
+                
+                FBXLoader.load('obj/Anim_Gana.fbx',
+                (personaAni) => {
+                    var action = personaje.mixer.clipAction(personaAni.animations[0]);
+                    action.play();
+                    actions2.push(action);
+
+                    FBXLoader.load('obj/Anim_Attack3.fbx',
+                    (personaAni) => {
+                        var action = personaje.mixer.clipAction(personaAni.animations[0]);
+                        action.play();
+                        actions2.push(action);
+
+                        FBXLoader.load('obj/Anim_Pierde.fbx',
+                        (personaAni) => {
+                            var action = personaje.mixer.clipAction(personaAni.animations[0]);
+                            action.play();
+                            actions2.push(action);
+            
+                        }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
+                        (error) =>{
+                            console.log(error);
+                        });
+        
+                    }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
+                    (error) =>{
+                        console.log(error);
+                    });
+    
+                }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
+                (error) =>{
+                    console.log(error);
+                });
+                
+
+            }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
+            (error) =>{
+                console.log(error);
+            });
     });
         
 
@@ -103,18 +170,18 @@ function onKeyUp(event) {
 function render() {
     requestAnimationFrame(render);
     deltaTime = clock.getDelta();
-
+if(!GameInstance.isOver()){
     if(modelReady){
+        
         GameInstance.MiniGames.forEach(MiniGame => {
             MiniGame.NearMinigame(players[0].position);
         });
-    }
-
-    // Restear las variables yaw y forward de cada jugador
-    for (let i = 0; i < players.length; i++) {
-        players[i].yaw = 0;
-        players[i].forward = 0;
-        players[i].status = "Iddle"
+        // Restear las variables yaw y forward de cada jugador
+        for (let i = 0; i < players.length; i++) {
+            players[i].yaw = 0;
+            players[i].forward = 0;
+            players[i].status = "Iddle"
+        }
     }
     // Player 1
     if (keys["A"]) {
@@ -132,7 +199,7 @@ function render() {
     if ( keys["Q"]){
         players[0].status = "Attacking"
     }
-    if (keys["E"]){
+    if (keys["E"] || keys["P"]){
         GameInstance.MiniGames.forEach((MiniGame, i) => {
             if( MiniGame.near ){
                 scene.remove(MiniGame.mesh);
@@ -141,11 +208,11 @@ function render() {
             }
         });
     }
-    if (keys["1"]){
+    if (keys["2"]){
         camera.position.x = camPositions[0][0];
         camera.position.z = camPositions[0][1];
     }
-    if (keys["2"]){
+    if (keys["1"]){
         camera.position.x = camPositions[1][0];
         camera.position.z = camPositions[1][1];
     }
@@ -160,9 +227,14 @@ function render() {
         players[1].yaw = -5;
     }
     if (keys["I"]) {
+        players[1].status = "Moving"
         players[1].forward = 5;
     } else if (keys["K"]) {
+        players[1].status = "Moving"
         players[1].forward = -5;
+    }
+    if ( keys["O"]){
+        players[1].status = "Attacking"
     }
 
     for (let i = 0; i < players.length; i++) {
@@ -170,41 +242,114 @@ function render() {
         players[i].translateZ(players[i].forward * deltaTime);
     }
 
-    if (GameInstance.isOver()){
-        OpenModal("Score");
-        clearInterval(timer);
-    }
-
     
+}else{
+    OpenModal("Score");
+    clearInterval(timer);
+    for (let i = 0; i < players.length; i++) {
+        if(GameInstance.GameStatus){
+            players[i].status = "Win";
+        }else{
+            players[i].status = "Loose";
+        }
+        
+    }
+}
     if( mixers.length > 0 ){
         for (let i = 0; i < mixers.length; i++) {
             switch(players[0].status) {
                 case "Moving":{
                     actions[1].stop();
                     actions[2].stop();
+                    actions[3].stop();
                     actions[0].play();
+                    actions[4].stop();
                     break;
                 }
                 case "Attacking":{
+                    actions[1].stop();
+                    actions[2].stop();
                     actions[0].stop();
+                    actions[3].play();
+                    actions[4].stop();
+                    break;
+                }
+                case "Win":{
                     actions[1].stop();
                     actions[2].play();
+                    actions[0].stop();
+                    actions[3].stop();
+                    actions[4].stop();
+                    break;
+                }
+                case "Loose":{
+                    actions[1].stop();
+                    actions[2].stop();
+                    actions[0].stop();
+                    actions[3].stop();
+                    actions[4].play();
                     break;
                 }
                 default:{
                     actions[0].stop();
                     actions[2].stop();
                     actions[1].play();
+                    actions[3].stop();
+                    actions[4].stop();
+                    break;
 
                 }
                 
             }
             mixers[i].update( deltaTime );
-            
         }
     }
     if( mixers2.length > 0 ){
         for ( var i = 0; i < mixers2.length; i++ ){
+            switch(players[1].status) {
+                case "Moving":{
+                    actions2[1].stop();
+                    actions2[2].stop();
+                    actions2[3].stop();
+                    actions2[0].play();
+                    actions2[4].stop();
+                    break;
+                }
+                case "Attacking":{
+                    actions2[1].stop();
+                    actions2[2].stop();
+                    actions2[0].stop();
+                    actions2[3].play();
+                    actions2[4].stop();
+                    break;
+                }
+                case "Win":{
+                    actions2[1].stop();
+                    actions2[2].play();
+                    actions2[0].stop();
+                    actions2[3].stop();
+                    actions2[4].stop();
+                    break;
+                }
+                case "Loose":{
+                    actions2[1].stop();
+                    actions2[2].stop();
+                    actions2[0].stop();
+                    actions2[3].stop();
+                    actions2[4].play();
+                    break;
+                }
+                default:{
+                    actions2[0].stop();
+                    actions2[2].stop();
+                    actions2[1].play();
+                    actions2[3].stop();
+                    actions2[4].stop();
+                    break;
+
+                }
+                
+            }
             mixers2[i].update( deltaTime );
         }
 
@@ -235,7 +380,7 @@ function setupScene() {
 
     var grid = new THREE.GridHelper(50, 10, 0xffffff, 0xffffff);
     grid.position.y = -1;
-    scene.add(grid);
+    //scene.add(grid);
     var material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.3, 1.0, 0.8)});
     var geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
 
@@ -262,6 +407,8 @@ function addPlayer(monito, id){
     players[id].yaw = 0;
     players[id].forward = 0;
     players[id].status = "Iddle";
+    players[id].position.z += 4;
+    players[id].position.x += id;
             
     scene.add(monito);
     players[id].add(monito);
@@ -288,7 +435,8 @@ function setTimer(minutes){
 
     // If the count down is finished, write some text
     if (distance < 0) {
-        document.getElementById("demo").innerHTML = "EXPIRED";
+        GameInstance.GameStatus = false;
+        document.getElementById("demo").innerHTML = "You Loose!";
     }
     }, 1000);
     return x;
