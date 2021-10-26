@@ -9,7 +9,8 @@ class GameMode{
     hab1Pos = [ [-20,30], [-12, 23] ];
     hab2Pos = [ [-28, 21], [-4, -2] ];
     hab3Pos = [ [-2, 21], [16, 21] ];
-    constructor( habitacion, mode, numJugadores, ) {
+    constructor( habitacion, numJugadores, mode, ) {
+        this.room = habitacion;
         this.objects = habitacion;
         this.mode = mode;
         this.numPlayers = numJugadores; 

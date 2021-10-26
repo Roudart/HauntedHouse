@@ -14,7 +14,8 @@ var time, timer;
 var modelReady = false;;
 
 $(document).ready(function(){
-    GameInstance = new GameMode(3, 1, 2);
+    var options = loadOptions()
+    GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo);
     setupScene();
     timer = setTimer(10);
     rayCaster = new THREE.Raycaster();
@@ -440,4 +441,17 @@ function setTimer(minutes){
     }
     }, 1000);
     return x;
+}
+
+function loadOptions(){
+    var aux = localStorage.getItem("Opciones");
+    if (aux == null){
+        aux = {"Mapa": 1, "Jugadores": 1, "Modo": 1};
+    }else{
+        aux = JSON.parse(aux);
+    }
+    console.log(aux.Mapa);
+    console.log(aux.Jugadores);
+    console.log(aux.Modo);
+    return aux;
 }
