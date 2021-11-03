@@ -19,7 +19,7 @@ $(document).ready(function(){
     setupScene();
     timer = setTimer(10);
     rayCaster = new THREE.Raycaster();
-
+    isWorldReady[0] = true;
     loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
         object.rotation.y = THREE.Math.degToRad(90);
         scene.add(object);
@@ -240,7 +240,12 @@ if(!GameInstance.isOver()){
 
     for (let i = 0; i < players.length; i++) {
         players[i].rotation.y += players[i].yaw * deltaTime;
-        players[i].translateZ(players[i].forward * deltaTime);
+        var movement = players[i].translateZ(players[i].forward * deltaTime);
+        GameInstance.BoxCollitions.forEach( Collition =>{
+            if (Collition.isColliding(movement.position)){
+                players[i].translateZ(-players[i].forward * deltaTime);
+            }
+        });
     }
 
     
@@ -382,10 +387,10 @@ function setupScene() {
     var grid = new THREE.GridHelper(50, 10, 0xffffff, 0xffffff);
     grid.position.y = -1;
     //scene.add(grid);
-    var material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.3, 1.0, 0.8)});
     var geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-
+    
     GameInstance.MiniGames.forEach(MiniGame => {
+        var material = new THREE.MeshLambertMaterial({color: new THREE.Color(MiniGame.Material[0], MiniGame.Material[1], MiniGame.Material[2])});
 
         var MiniGameBox = new THREE.Mesh(geometry, material)
         MiniGameBox.position.x = MiniGame.posX;
@@ -409,6 +414,7 @@ function addPlayer(monito, id){
     players[id].forward = 0;
     players[id].status = "Iddle";
     players[id].position.z += 4;
+    //players[id].translateY(2.2);
     players[id].position.x += id;
             
     scene.add(monito);
@@ -450,8 +456,5 @@ function loadOptions(){
     }else{
         aux = JSON.parse(aux);
     }
-    console.log(aux.Mapa);
-    console.log(aux.Jugadores);
-    console.log(aux.Modo);
     return aux;
 }
