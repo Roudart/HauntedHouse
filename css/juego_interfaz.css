@@ -1,13 +1,6 @@
  html {
     height: 100%;
   }
-.bg-image{
-    background-image: url("../img/fondoInterfaz.png");;
-    height: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
 .diez_porc{
     width: 10%;
 }
@@ -71,3 +64,10 @@
    text-decoration: none;
    cursor: pointer;
  }
+
+ .ocho_porc{
+  width: 8%;
+}
+.diez_porc{
+  width: 10%;
+}
