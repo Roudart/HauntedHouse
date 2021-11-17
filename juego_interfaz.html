@@ -20,11 +20,14 @@
     <title>Haunted House!</title>
     <script type="text/javascript">
       function shareFB() {
-        shareScore(time);
+        shareScore(scoreTime);
       }
       </script>
   </head>
   <body>
+    <audio src="audio/Possession.mp3" type="audio/mpeg" controls loop>
+      Your browser does not support the audio element.
+    </audio>
     <div class="bg-image">
       <!--  <div class="d-flex flex-column min-vh-100 justify-content-top align-items-top transparent navbar-inverse navbar-fixed-top"> -->
               <div class="">
@@ -65,10 +68,10 @@
       <div class="modal-content">
         <span class="close">&times;</span>
         <p class="h4" style="color: white;">Score</p>
-        <ul class="list-group list-group-numbered">
-          <li class="list-group-item">Erika - 2:22</li>
+        <ul class="list-group list-group-numbered" id="ListaScore">
+          <!-- <li class="list-group-item">Erika - 2:22</li>
           <li class="list-group-item list-group-item-primary">Diego - 2:45</li>
-          <li class="list-group-item">Kevin - 4:13</li>
+          <li class="list-group-item">Kevin - 4:13</li> -->
         </ul> <br>
         <button class="btn btn-primary btn-lg" onclick="shareFB();">Comparte tu puntaje en facebook</button>
       </div>
@@ -78,7 +81,6 @@
 
                       <!-- Contenido score -->
       <div class="modal-content">
-        <span class="close">&times;</span>
         <p class="h4" style="color: white;">Ahorcado</p>
         <ul class="list-group list-group-numbered">
           <p>Hola</p>

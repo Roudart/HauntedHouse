@@ -4,8 +4,12 @@
         addUser();
     else if ($action == "getUser")
         getUser();
-	else if ($action = "findUser")
+	else if ($action == "findUser")
 		findUser();
+	else if ($action == "saveScore")
+		saveScore();
+	else if ($action == "getScores")
+		getScores();
     function connect() {
         $databasehost = "localhost"; // Nombre de instancia o host de la base de datos
         $databasename = "HauntedHouseDB"; // Nombre de schema o DB
@@ -74,6 +78,44 @@
 			$rows = array();
 			while( $r = $result->fetch_assoc()){
 				$rows = $r;
+			}
+			echo json_encode($rows);
+		}
+
+		disconnect($mysqli);
+	}
+
+	function saveScore() {
+		$id = $_POST["id"];
+		$score = $_POST["score"];
+
+		$mysqli = connect();
+		
+		$result = $mysqli->query("CALL ActualizarPuntaje('$id', '$score');");
+
+		if (!$result) {
+			echo "Problema al hacer un query: " . $mysqli->error;								
+		} else {
+			echo "Todo salio bien";		
+		}
+
+		disconnect($mysqli);
+	}
+
+	function getScores() {
+
+		$mysqli = connect();
+		
+		$result = $mysqli->query("CALL ObtenerPuntajes();");
+
+		if(!$result){
+			echo "Problema al hacer un query: " . $mysqli->error;
+		}else{
+			$rows = array();
+			$i = 0;
+			while( $r = $result->fetch_assoc()){
+				$rows[$i] = $r;
+				$i++;
 			}
 			echo json_encode($rows);
 		}

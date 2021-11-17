@@ -38,6 +38,14 @@ DROP PROCEDURE IF EXISTS ActualizarPuntaje;
 DELIMITER $$
 CREATE PROCEDURE ActualizarPuntaje(Id VARCHAR (25), ScoreIn TIME)
 BEGIN
-	UPDATE Usuario SET TopScore = ScoreIn WHERE IdUsuario = 1;
+	UPDATE Usuario SET TopScore = ScoreIn WHERE IdUsuario = Id;
+END $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS ObtenerPuntajes;
+DELIMITER $$
+CREATE PROCEDURE ObtenerPuntajes()
+BEGIN
+	SELECT NombreUsuario, TopScore FROM Usuario WHERE NombreUsuario != NULL OR TopScore != '00:00:00' ORDER BY TopScore ASC;
 END $$
 DELIMITER ;

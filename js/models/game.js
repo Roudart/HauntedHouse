@@ -47,18 +47,21 @@ class GameMode{
                         [8.6, 6.3], [13.3, 5.5]];
     constructor( habitacion, numJugadores, mode, ) {
         this.room = habitacion;
-        this.objects = habitacion;
+        this.objects = 3;
         this.mode = mode;
         this.numPlayers = numJugadores; 
         this.GetMinigames();
+        this.getCurrentRoom();
         this.GetRoomCollitions();
     }
 
     GetMinigames(){
         for (let i = 0; i < this.objects; i++) {
-            this.MiniGames.push( new MiniGame ( this.GetMiniGameRandomPos(1) ,1, [0,0,1])); // AZUL
-            this.MiniGames.push( new MiniGame ( this.GetMiniGameRandomPos(2) ,1, [1,0,0]));  // ROJO
-            this.MiniGames.push( new MiniGame ( this.GetMiniGameRandomPos(3) ,1, [0,1,0]));  // VERDE
+            if(this.room < 2)
+            this.MiniGames.push( new MiniGame ( this.GetMiniGameRandomPos(1) ,1, [0,0,1])); // AZUL   HAB1
+            if(this.room < 3)
+            this.MiniGames.push( new MiniGame ( this.GetMiniGameRandomPos(2) ,1, [1,0,0]));  // ROJO  HAB2
+            this.MiniGames.push( new MiniGame ( this.GetMiniGameRandomPos(3) ,1, [0,1,0]));  // VERDE HAB3
         }
     }
 
@@ -68,6 +71,24 @@ class GameMode{
                 this.BoxCollitions.push( new BoxCollition ( this.RoomCollitions[i * 2][0], this.RoomCollitions[i*2][1],
                                                             this.RoomCollitions[(i * 2) + 1][0], this.RoomCollitions[(i * 2) + 1][1]))
             }
+        }
+    }
+
+    getCurrentRoom(){
+        if(this.room == 1){
+            this.camPosX = 0; 
+            this.camPosZ = 12; 
+            this.camPosY = 18; 
+        }
+        if(this.room == 2){
+            this.camPosX = -8; 
+            this.camPosZ = 10; 
+            this.camPosY = 24; 
+        }
+        if(this.room == 3){
+            this.camPosX = -16; 
+            this.camPosZ = 27; 
+            this.camPosY = 8.5; 
         }
     }
 
@@ -121,11 +142,42 @@ class GameMode{
         }
     }
 
-    setGameOver(time){
-        if(!this.GameOver){
-            shareScore(time);
-            this.GameOver = true;
-        }
+    saveScore(time, Usuario){
+        var dataToSend = {
+            action : "saveScore",
+            id : Usuario.IdUsuario,
+            score : time
+        };
+
+        $.ajax({
+            url : "webService/UsuarioDB.php",
+            async: true,
+            type : 'POST',
+            data : dataToSend,
+            success : function(data){
+                console.log(time)
+                var dataToSend = {
+                    action : "getScores"
+                };
+                $.ajax({
+                    url : "webService/UsuarioDB.php",
+                    async: true,
+                    type : 'POST',
+                    data : dataToSend,
+                    success : function(dataScore){
+                        console.log(dataScore);
+                        var Scores = JSON.parse(dataScore)
+                        OpenModal("Score", Scores);
+                    },
+                    failure : function(){
+                        alert("Algo salió mal");
+                    }
+                });
+            },
+            failure : function(){
+                alert("Algo salió mal");
+            }
+        });
     }
 }
 
@@ -134,6 +186,7 @@ class MiniGame{
     completed = false;
     near = false;
     mesh;
+    isOpen = false;;
     constructor( position, Type, material) {
         this.posX = position[0];
         this.posY = position[1];
@@ -162,6 +215,23 @@ class MiniGame{
         if (distance < this.collisionDistance) {
             return true;
         } else return false;
+    }
+
+    OpenMiniGame(){
+        this.isOpen = true;
+        this.modal = document.getElementById("JuegoAhorcado");
+        modal.style.display = "block";
+        
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        }
+    }
+    CloseMiniGame(){
+        this.isOpen = false;
+
     }
 
 }
