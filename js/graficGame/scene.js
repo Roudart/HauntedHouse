@@ -19,6 +19,7 @@ var isWorldReady = [ false, false, false ];
 
 $(document).ready(function(){
 
+
     var options = loadOptions()
     GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo);
     setupScene();
@@ -457,8 +458,6 @@ function setupScene() {
             cont = cont + 1;
         });
     }
-    
-    
     $(".bg-image").append(renderer.domElement);
 }
 
