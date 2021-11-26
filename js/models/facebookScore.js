@@ -20,8 +20,8 @@ window.fbAsyncInit = function() {
     FB.ui({
       method: 'share',
       href: 'https://google.com',
-      hashtag: "#MILoMejor",
-      quote: "Mi puntuacion: " + score
+      hashtag: "#HauntedHouse",
+      quote: "Mi puntuacion fue: " + score
     }, function(response){});
   }
   

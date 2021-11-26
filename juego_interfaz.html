@@ -8,52 +8,144 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link href="./css/juego_interfaz.css" rel="stylesheet" type="text/css">
+    <link href="./css/menu_pausa.css" rel="stylesheet" type="text/css">
     <script src="js/models/facebookScore.js"></script>
-    <title>Hello, world!</title>
+    <script src="js/libs/jquery-3.6.0.min.js"></script>
+    <script src="js/libs/three2.js"></script>
+    <script src="js/libs/MTLLoader.js"></script>
+    <script src="js/libs/FBXLoader.js"></script>
+    <script src="js/libs/OBJLoader.js"></script>
+    <script src="js/libs/inflate.min.js"></script>
+    <script src="js/graficGame/scene.js"></script>
+    <script src="js/models/game.js"></script>
+    <title>Haunted House!</title>
     <script type="text/javascript">
+       
+function pausarJuego() {   
+//alert("how are you");  
+document.getElementById("popup_webgl").style.display = "none";
+         }  
+function salirJuego() { 
+document.getElementById("popup_webgl").style.display = "none";  
+//shareScore(scoreTime);
+         } 
       function shareFB() {
-        shareScore(1000);
+        shareScore(scoreTime);
       }
+      $(document).ready(function() { 
+        // document.getElementById('musica').play();
+
+        var mainWidth = 0.9*window.innerWidth,
+        // mainHeight = mainWidth*(490/900);
+        mainHeight = mainWidth*(100/900);
+        btnPausa.onclick = function RaiseWindow() { 
+
+        document.getElementById("popup_webgl").style.display = "block";
+        var popWidth = mainWidth;
+        var popHeight = mainHeight;
+       
+    
+      var popID = 'canvas'; // Find the pop-up                                           
+      var popWidth = 700; // Width                                                  
+
+      // Get margin to center window - adjust with 80px                                  
+      var popMargTop = ($('#' + popID).height() + 80) / 2;                               
+      var popMargLeft = ($('#' + popID).width() + 80) / 2;                               
+
+      // Display background                                                              
+      $('body').append('<div id="fade"></div>');                                         
+      $('#fade').css({'filter' : 'contrast(0.3)'}).fadeIn();                             
+
+      return false;                                       
+        };
+
+
+      });
       </script>
   </head>
   <body>
     <div class="bg-image">
-        <!-- <div class="navbar transparent navbar-inverse navbar-fixed-top">
-            <nav class="navbar-inner">
-            ...
-            </div>
-         </div> -->
-
-        <div class="d-flex flex-column min-vh-100 justify-content-top align-items-top transparent navbar-inverse navbar-fixed-top">
-            <div class="navbar transparent navbar-inverse navbar-fixed-top">
-            
-            <nav class="navbar navbar-expand-sm">
-                <div class="container-fluid">
-                  <!-- <a class="navbar-brand">Navbar</a> -->
-                  <div>
-                    <img class="diez_porc navbar-brand" src="./img/tiempo.png" alt="">
-                    <img class="diez_porc navbar-brand" id="openModal" src="./img/hh_mm_ss.png" alt="">
-                  </div> 
-                 
-                  <div class="ml-auto" >
-                    <img class="" src="./img/corazon_naranja.png" alt="">
-                    <img class="" src="./img/corazon_negro.png" alt="">
-                    <img class="" src="./img/corazon_verde.png" alt="">
-                    
-                 </div>
-                 <div class="progress" style="height:20px">
-                    <div class="progress-bar" style="width:40%;height:20px"></div>
+         <div id="canvas" style="position:absolute;text-align:end;" data-rel="popup_webgl" class="center">
+           
+         </div>
+    <!-- HTML content of popup_webgl -->
+    <div id="popup_webgl" class="popup_block" style="text-align:center;">
+        <img class="bloquePause" src="./img/bloquePausa.png" alt="...">
+                <div class="card-img-overlay text-white justify-content-center " style="
+    height: 100%;
+">
+                  <div class="container">
+                    <img class="card-img" src="./img/continuar.png" onclick="pausarJuego()" alt="Snow">
+                    <!--<div class="centered halloween">Continuar</div> -->
                   </div>
+                  <div class="container">
+                    <img id="btnSalirJuego" onclick="salirJuego()" class="card-img" src="./img/salir.png" alt="Snow">
+                    <!--<div class="centered halloween">Salir </div>  -->
+                  </div>
+                  <!-- <div class="container">
+                    <img class="card-img" src="./img/pausa_opciones_btn.png" alt="Snow">
+                    <div class="centered halloween">Opcion 1 </div>
+                  </div>
+                   <div class="container">
+                    <img class="card-img" src="./img/pausa_opciones_btn.png" alt="Snow">
+                    <div class="centered halloween">Opcion 1 </div>
+                  </div> -->
+
+                 
                 </div>
-                
-                    <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button> -->
-                  
-            </nav>
+    </div>
+
+      <!--  <div class="d-flex flex-column min-vh-100 justify-content-top align-items-top transparent navbar-inverse navbar-fixed-top"> -->
+      <div class="">
+        <div class="navbar transparent navbar-inverse navbar-fixed-top">   
+          <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+              <a class="navbar-brand"> 
+                <img src="./img/logo.png" width="100" height="50" class="d-inline-block align-top" alt="">
+              </a>
+              <div> 
+
+                <audio id="musica" src="audio/Possession.mp3" type="audio/mpeg" controls autoplay loop>
+                  Your browser does not support the audio element.
+                </audio>
+              </div>       
+              
+              <div class="navbar-brand" href="#">
+                <img src="./img/tiempo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+                <label class="diez_porc navbar-brand" id="demo"></label>
+              </div>
+      
+                      
+              <div class="ml-auto" >
+                <img class="diez_porc" src="./img/corazon_naranja.png" alt="">
+                <img class="diez_porc" src="./img/corazon_negro.png" alt="">
+                <img class="diez_porc" src="./img/corazon_verde.png" alt="">
+              </div>
+            
+              <div class="progress" style="height:20px">
+                <div class="progress-bar" style="width:25%;height:20px">
+                    
+                </div>
+              </div>
+             <!-- PAUSA -->
+             <button id="btnPausa" type="button" class="btn btn-sm" data-toggle="modal" data-target="#pausaModal" style="width: 15%;">
+  <img  style="width: 25%;" src="./img/pausa.png"/>
+</button> 
+             <!--  <div class="align_end">
+                 <a role="button" data-toggle="modal" data-target="#pausaModal">afasf</a>
+              </div> -->
             </div>
-        </div>
-         
-          
+          </nav>
+                   
+                  </div>
+              </div> 
+                
+    </div>
+
+
+
+   <div id="body">
+
     </div>
                     <!-- Score Modal -->
     <div id="Score" class="modal">
@@ -62,12 +154,23 @@
       <div class="modal-content">
         <span class="close">&times;</span>
         <p class="h4" style="color: white;">Score</p>
-        <ul class="list-group list-group-numbered">
-          <li class="list-group-item">Erika - 2:22</li>
+        <ul class="list-group list-group-numbered" id="ListaScore">
+          <!-- <li class="list-group-item">Erika - 2:22</li>
           <li class="list-group-item list-group-item-primary">Diego - 2:45</li>
-          <li class="list-group-item">Kevin - 4:13</li>
+          <li class="list-group-item">Kevin - 4:13</li> -->
         </ul> <br>
         <button class="btn btn-primary btn-lg" onclick="shareFB();">Comparte tu puntaje en facebook</button>
+      </div>
+      
+    </div>
+    <div id="JuegoAhorcado" class="modal">
+
+                      <!-- Contenido score -->
+      <div class="modal-content">
+        <p class="h4" style="color: white;">Ahorcado</p>
+        <ul class="list-group list-group-numbered">
+          <p>Hola</p>
+        </ul> <br>
       </div>
       
     </div>
@@ -83,4 +186,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
 
   </body>
+
 </html>

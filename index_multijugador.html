@@ -1,0 +1,427 @@
+<html>
+<head>
+	
+	<title>multijugador</title>
+	<script type="text/javascript" src="js/libs/jquery-3.6.0.min.js"></script>
+	<script type="text/javascript" src="js/libs/three2.js"></script>
+	<script type="text/javascript" src="js/libs/MTLLoader.js"></script>
+	<script type="text/javascript" src="js/libs/OBJLoader.js"></script>
+	<script type="text/javascript">
+
+	var scene;
+	var camera;
+	var renderer;
+	var controls;
+	var objects = [];
+	var clock;
+	var deltaTime;	
+	var keys = {};
+	var rayCaster;
+	var objetosConColision = [];
+	var giragira = false; 
+	var bajabaja = false; 
+	var objeto;
+	var isWorldReady = [ false, false, false ];
+	$(document).ready(function() {
+
+		setupScene();
+
+///multijugador
+		document.addEventListener('keydown', onKeyDown);
+		document.addEventListener('keyup', onKeyUp);	
+
+		rayCaster = new THREE.Raycaster();
+		/*cameras.rayos = [
+		new THREE.Vector3(0,0,1),
+		new THREE.Vector3(0,0,-1),
+		new THREE.Vector3(1,0,0),
+		new THREE.Vector3(-1,0,0)
+		];players[0].rayos = [
+		new THREE.Vector3(0,0,1),
+		new THREE.Vector3(0,0,-1),
+		new THREE.Vector3(1,0,0),
+		new THREE.Vector3(-1,0,0)
+		];
+		*/
+		players[0].rayos = [
+		new THREE.Vector3(0,1,0),
+		new THREE.Vector3(-1,0,0),
+		new THREE.Vector3(0,-1,0),
+		new THREE.Vector3(1,0,0)
+		];
+
+		loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => { 
+			scene.add(object);
+			object.name = "haunted";
+			objetosConColision.push(object);
+			isWorldReady[2] = true;
+		});
+		/*loadOBJWithMTL("assets/", "box.obj", "box.mtl", (object) => {
+			object.position.z = -30;			
+
+			var box2 = object.clone();
+			box2.position.x = 30;
+			object.name = "cajita1";
+			scene.add(object);
+
+			var box2 = object.clone();
+			box2.position.set(30,0, -30);
+			box2.name = "cajita2";
+			//scene.add(box2);
+
+			var caja3 = object.clone();
+			caja3.position.set(-30,0, -30);
+			caja3.name = "cajita3";
+			//scene.add(caja3);
+
+			//atras
+			var caja4 = object.clone();
+			caja4.position.set(0,0, 30);
+			caja4.name = "cajita4";
+			//scene.add(caja4);
+			var caja5 = object.clone();
+			caja5.position.set(-30,0, 30);
+			caja5.name = "cajita5";
+			//scene.add(caja5);
+
+			var caja6 = object.clone();
+			caja6.position.set(30,0, 30);
+			caja6.name = "cajita6";
+			//scene.add(caja6);
+
+			//lateral izq y der
+			var caja7 = object.clone();
+			caja7.rotation.y = THREE.Math.degToRad(-90);
+			caja7.position.set(-60,0, 0);
+			caja7.name = "cajita7";
+			//scene.add(caja7);
+
+			var caja8 = object.clone();
+			caja8.rotation.y = THREE.Math.degToRad(90);
+			caja8.position.set(60,0, 0);
+			caja8.name = "cajita8";
+			//scene.add(caja8);
+
+			objetosConColision.push(object);
+			objetosConColision.push(box2);
+			objetosConColision.push(caja3);
+			objetosConColision.push(caja4);
+			objetosConColision.push(caja5);
+			objetosConColision.push(caja6);
+			objetosConColision.push(caja7);
+			objetosConColision.push(caja8);
+
+			isWorldReady[0] = true;
+		});*/
+
+		
+
+		render();
+
+	
+	});
+	function onKeyDown(event) {
+		keys[String.fromCharCode(event.keyCode)] = true;
+	}
+	function onKeyUp(event) {
+		keys[String.fromCharCode(event.keyCode)] = false;
+	}
+	function loadOBJWithMTL(path, objFile, mtlFile, onLoadCallback) {
+		var mtlLoader = new THREE.MTLLoader();
+		mtlLoader.setPath(path);
+		mtlLoader.load(mtlFile, (materials) => {
+			
+			var objLoader = new THREE.OBJLoader();
+			objLoader.setMaterials(materials);
+			objLoader.setPath(path);
+			objLoader.load(objFile, (object) => {
+				onLoadCallback(object);
+			});
+
+		});
+	}
+
+
+
+	//multijugador
+	var c= 0;
+	var cubos = [];
+	var pointHeight = 0;
+	var noentrar = true;
+	function render() {
+		requestAnimationFrame(render);
+		deltaTime = clock.getDelta();	
+
+		
+
+		//multijugador
+		for (var i = 0; i < players.length; i++) {
+			players[i].yaw = 0;
+			players[i].forward = 0;
+		}
+		
+		var house = scene.getObjectByName("haunted");
+
+		//		cubito1.rotation.x+= THREE.Math.degToRad(1);
+		var yaw = 0;
+		var forward = 0;
+		/*if (keys["A"]) {
+			yaw = 5;
+		} else if (keys["D"]) {
+			yaw = -5;
+		}
+		if (keys["W"]) {
+			forward = -20;
+		} else if (keys["S"]) {
+			forward = 20;
+		}*/
+		//multijugador INICIA
+		// Player 1
+		if (keys["A"]) {
+			players[0].yaw = 5;
+		} else if (keys["D"]) {
+			players[0].yaw = -5;
+		}
+		if (keys["W"]) {
+			players[0].forward = -5;
+		} else if (keys["S"]) {
+			players[0].forward = 5;
+			if(players[0].position.y >= 2){
+				players[0].position.y -= 0.3;
+			}
+		}
+
+		// Player 2
+		if (keys["J"]) {
+			players[1].yaw = 5;
+		} else if (keys["L"]) {
+			players[1].yaw = -5; 
+		}
+		if (keys["I"]) {
+			players[1].forward = -5;
+		} else if (keys["K"]) {
+			players[1].forward = 5;
+		}
+
+		for (var i = 0; i < players.length; i++) {
+			players[i].rotation.y += players[i].yaw * deltaTime;
+			players[i].translateZ(players[i].forward * deltaTime);
+			cameras[i].position.x = players[i].position.x;
+			cameras[i].position.z = players[i].position.z;
+		}
+		//multijugador termina
+		if(giragira==true){
+			const relativeHeight = players[0].position.y + pointHeight * 10;
+			if(pointHeight > 0 ){
+				players[0].position.y = pointHeight * 2 ;
+			}
+			if(players[0].position.y >= 16 ){
+				players[0].position.y = 16;
+				
+			}
+			if(players[0].position.y >= 16 ){
+				noentrar= false;
+				bajabaja = true;
+			}
+			
+			/*for (var i = 0; i < objects.length ; i++) {
+			var nombre = scene.getObjectByName(objects[i]);
+				//var name = ; nombre.rotation.x += THREE.Math.degToRad(1);
+			players[0].position.y = 6;	
+			
+			}*/
+		}
+		if(bajabaja == true){ 
+			//giragira = false;
+		 	for (var i = 0; i < objects.length ; i++) {
+		 		
+					var nombre = scene.getObjectByName(objects[i]);
+					if(players[0].position.y <= 1){
+						players[0].position.y = 1;
+						//giragira = true;
+						//bajabaja = false;
+						//noentrar = true;
+					}else{
+						players[0].position.y -= 0.8 ;
+					}
+		 		
+				
+			
+			}
+		}
+		if (isWorldReady[0] && isWorldReady[2]) {
+			
+			/*camera.rotation.y += yaw * deltaTime;
+			camera.translateZ(forward * deltaTime);*/
+		for(var i= 0 ; i < players[0].rayos.length; i++){ 
+				/*var rayo = players[0].rayos[i];
+				rayCaster.set(players[0].position, rayo);
+				;*/
+				
+				var rayo = players[0].rayos[i];
+				rayCaster.set(players[0].position, rayo);
+				var colisiones = rayCaster.intersectObjects(objetosConColision, true);
+				
+				
+
+				if (colisiones.length > 0 && colisiones[0].distance < 1 && noentrar == true){
+					console.log("colisionando " + colisiones[0].object.parent.name);
+					players[0].position.y = colisiones[0].point.y * 2;
+				  /* pointHeight = colisiones[0].point.y;
+				   var nombre = colisiones[0].object.parent.name;
+				   objects.push(nombre);
+				   giragira = true;*/
+				} else {
+					//console.log("NO colisionando");
+					//bajabaja = true;
+				}
+				/*if(players[0].position.y >= 15){ 
+						bajabaja = true;
+
+				}*/
+		}
+			/*for(var i= 0 ; i < camera.rayos.length; i++){
+				var rayo = camera.rayos[i];
+				rayCaster.set(camera.position, rayo);
+				var colisiones = rayCaster.intersectObjects(objetosConColision, true);		
+
+				if(colisiones.length > 0 && colisiones[0].distance < 2 ){
+					console.log("colisionando");
+					console.log(colisiones[0]);
+					console.log(colisiones[0].name);
+					var nombre = colisiones[0].object.parent.name;
+					 //nombre.rotation.x = 90;
+					//colisiones[0].object.rotation.x += 1 * deltaTime ;
+					giragira = true;
+					objects.push(nombre);
+				
+				} else {
+					
+				}
+
+
+			
+					//colisiones[0].object.rotation.x += THREE.Math.degToRad(1) ;
+				
+				
+			}*/
+		}
+		//MULTIJUGADOR
+	renderers[0].render(scene, cameras[0]);
+	renderers[1].render(scene, cameras[1]);
+	//MULTIJUGADOR
+		//renderer.render(scene, camera);
+	}
+	var visibleSize = { width: window.innerWidth, height: window.innerHeight};
+	var cameras = [];
+	var renderers = [];
+	var players = [];
+	
+	function createCamera() {
+
+		var camera = new THREE.PerspectiveCamera(75, visibleSize.width / visibleSize.height, 0.1, 100);
+		cameras.push(camera);
+	}
+	function createRenderer(color) {
+
+		var renderer = new THREE.WebGLRenderer( {precision: "mediump" } );
+		renderer.setClearColor(color);
+		renderer.setPixelRatio((visibleSize.width / 2) / visibleSize.height);
+		renderer.setSize(visibleSize.width / 2, visibleSize.height);
+
+		renderers.push(renderer);
+	}
+	function setupScene() {		
+		var visibleSize = { width: window.innerWidth, height: window.innerHeight};
+		clock = new THREE.Clock();		
+		scene = new THREE.Scene();
+		createCamera();
+		createCamera();
+
+		createRenderer(new THREE.Color(0, 0, 0));
+		createRenderer(new THREE.Color(0.0, 0, 0));
+
+		/*camera = new THREE.PerspectiveCamera(75, visibleSize.width / visibleSize.height, 0.1, 100);
+		camera.position.z = 2;
+		camera.position.y = 5;
+
+		renderer = new THREE.WebGLRenderer( {precision: "mediump" } );
+		renderer.setClearColor(new THREE.Color(0, 0, 0));
+		renderer.setPixelRatio(visibleSize.width / visibleSize.height);
+		renderer.setSize(visibleSize.width, visibleSize.height);*/
+
+		var ambientLight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 1.0);
+		scene.add(ambientLight);
+
+		var directionalLight = new THREE.DirectionalLight(new THREE.Color(1, 1, 0), 0.4);
+		directionalLight.position.set(0, 0, 1);
+		scene.add(directionalLight);
+
+		var grid = new THREE.GridHelper(50, 10, 0xffffff, 0xffffff);
+		grid.position.y = -1;
+		scene.add(grid);
+
+		//multijugador
+		var material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.5, 0.0, 0.0)});
+		var geometry = new THREE.BoxGeometry(1, 1, 1);
+		
+		var player1 = new THREE.Mesh(geometry, material)
+		player1.position.x = 1;
+		
+		var player2 = player1.clone();
+		player2.material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.0, 0.5, 0.0)});
+		player2.position.x = -1;
+
+		scene.add(player1);
+		scene.add(player2);
+
+		players.push(player1);
+		players.push(player2); //agrego al arreglo de players
+
+		player1.yaw = 0;
+		player1.forward = 0;
+
+		player2.yaw = 0;
+		player2.forward = 0;
+		
+		//player1.add(cameras[0]);
+		//player2.add(cameras[1]);
+		cameras[0].position.y = 20;
+		cameras[1].position.y = 20;
+		/*cameras[0].rotation.x = THREE.Math.degToRad(0);
+		cameras[1].rotation.x = THREE.Math.degToRad(0);*/ //cambiar camara
+		cameras[0].rotation.x = THREE.Math.degToRad(-90);
+		cameras[1].rotation.x = THREE.Math.degToRad(-90);
+		var material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.5, 0.0, 0.0)});
+		var geometry = new THREE.BoxGeometry(1, 1, 1);
+		cube = new THREE.Mesh(geometry, material)
+		cube.position.x = 0;
+		cube.name = "cube1"
+		//scene.add(cube);
+
+		var cubo2 = cube.clone();
+		cubo2.material  = new THREE.MeshLambertMaterial({color: new THREE.Color(0.0, 0.5, 0.5)});	
+		cubo2.position.z = -1;
+		cubo2.name="cube2";
+		//scene.add(cubo2);
+
+		$("#scene-section").append(renderers[0].domElement);
+		$("#scene-section-2").append(renderers[1].domElement);
+		/*$("#scene-section").append(renderer.domElement);*/
+	}
+
+
+	</script>
+</head>
+
+<body>
+
+	<!-- <div id="scene-section"/> -->
+
+	<div style="display: flex; height: 100px;">	
+		<div style="width: 50%;" id="scene-section"></div>
+		<div style="flex-grow: 1;" id="scene-section-2"></div>
+	</div>
+
+</body>
+</html>
