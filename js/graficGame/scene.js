@@ -11,21 +11,53 @@ var mixers2 = [];
 var actions2 = [];
 var GameInstance;
 var time, timer, score, scoreTime;
-var modelReady = false;;
+var modelReady = false;
+var objetosConColision = [];
+var isWorldReady = [ false, false, false ];
+
+
 
 $(document).ready(function(){
+
+
     var options = loadOptions()
     GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo);
     setupScene();
     timer = setTimer(10);
     rayCaster = new THREE.Raycaster();
     isWorldReady[0] = true;
-    loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
+   /*loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
         object.rotation.y = THREE.Math.degToRad(90);
         scene.add(object);
         isWorldReady[0] = true;
+    });*/
+    loadOBJWithMTL("assets/", "key3.obj", "key3.mtl", (object) => {
+     object.position.x = 0;
+      object.position.z = 0;
+         object.name = "llave";
+        scene.add(object);
+     
+        objetosConColision.push(object);
+        isWorldReady[1] = true;
     });
-
+    loadOBJWithMTL("assets/", "llaveAntigua.obj", "llaveAntigua.mtl", (object) => {
+     object.position.x = 0;
+      object.position.z = 0;
+         object.name = "llave2";
+        scene.add(object);
+     
+        objetosConColision.push(object);
+        isWorldReady[1] = true;
+    });
+    loadOBJWithMTL("assets/", "cofremaya.obj", "cofremaya.mtl", (object) => {
+     object.position.x = 0;
+      object.position.z = 0;
+         object.name = "cofre";
+        scene.add(object);
+     
+        objetosConColision.push(object);
+       // isWorldReady[1] = true;
+    });
     var FBXLoader = new THREE.FBXLoader();
     FBXLoader.load('obj/Anim_SoloCorrer.fbx', (personaje) => {
         personaje.mixer = new THREE.AnimationMixer(personaje);
@@ -256,6 +288,9 @@ function render() {
                         players[i].translateZ(-players[i].forward * deltaTime);
                     }
                 });
+                camera.position.x = players[i].position.x;
+                camera.position.z = players[i].position.z;
+                camera.position.y = players[i].position.y + 20;
             }
 
             
@@ -377,7 +412,9 @@ function render() {
     }
     renderer.render(scene, camera);
 }
+var arreglollave = [];
 
+// se llama antes de cargar la llave 
 function setupScene() {		
     var visibleSize = { width: window.innerWidth, height: window.innerHeight};
     clock = new THREE.Clock();		
@@ -400,18 +437,27 @@ function setupScene() {
     grid.position.y = -1;
     //scene.add(grid);
     var geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-    
-    GameInstance.MiniGames.forEach(MiniGame => {
-        var material = new THREE.MeshLambertMaterial({color: new THREE.Color(MiniGame.Material[0], MiniGame.Material[1], MiniGame.Material[2])});
-
-        var MiniGameBox = new THREE.Mesh(geometry, material)
-        MiniGameBox.position.x = MiniGame.posX;
-        MiniGameBox.position.y = MiniGame.posY;
-        MiniGameBox.position.z = MiniGame.posZ;
-        MiniGame.mesh = MiniGameBox;
-        scene.add(MiniGameBox);
-    });
-
+    if(isWorldReady[1] ){
+        var llave = scene.getObjectByName("llave");
+        var cofre = scene.getObjectByName("cofre");
+        var cont=0;
+        GameInstance.MiniGames.forEach(MiniGame => {
+            /*var material = new THREE.MeshLambertMaterial({color: new THREE.Color(MiniGame.Material[0], MiniGame.Material[1], MiniGame.Material[2])});
+            var MiniGameBox = new THREE.Mesh(geometry, material)
+            MiniGameBox.position.x = MiniGame.posX;
+            MiniGameBox.position.y = MiniGame.posY;
+            MiniGameBox.position.z = MiniGame.posZ;
+            MiniGame.mesh = MiniGameBox;*/
+            arreglollave[cont] = llave.clone();
+            arreglollave[cont].position.x = MiniGame.posX;
+            arreglollave[cont].position.y = MiniGame.posY;
+            arreglollave[cont].position.z = MiniGame.posZ;
+            
+            //scene.add(arreglollave[cont]);
+            //scene.add(cofre);
+            cont = cont + 1;
+        });
+    }
     $(".bg-image").append(renderer.domElement);
 }
 
