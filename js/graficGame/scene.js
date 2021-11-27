@@ -26,11 +26,11 @@ $(document).ready(function(){
     timer = setTimer(10);
     rayCaster = new THREE.Raycaster();
     isWorldReady[0] = true;
-   /*loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
+   loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
         object.rotation.y = THREE.Math.degToRad(90);
         scene.add(object);
         isWorldReady[0] = true;
-    });*/
+    });
     loadOBJWithMTL("assets/", "key3.obj", "key3.mtl", (object) => {
      object.position.x = 0;
       object.position.z = 0;
@@ -39,6 +39,24 @@ $(document).ready(function(){
      
         objetosConColision.push(object);
         isWorldReady[1] = true;
+        var cont=0;
+        var geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+        GameInstance.MiniGames.forEach(MiniGame => {
+            var material = new THREE.MeshLambertMaterial({color: new THREE.Color(MiniGame.Material[0], MiniGame.Material[1], MiniGame.Material[2])});
+            var MiniGameBox = new THREE.Mesh(geometry, material)
+            MiniGameBox.position.x = MiniGame.posX;
+            MiniGameBox.position.y = MiniGame.posY;
+            MiniGameBox.position.z = MiniGame.posZ;
+            MiniGame.mesh = MiniGameBox;
+            scene.add(MiniGameBox);
+            /*arreglollave[cont] = object.clone();
+            arreglollave[cont].position.x = MiniGame.posX;
+            arreglollave[cont].position.y = MiniGame.posY;
+            arreglollave[cont].position.z = MiniGame.posZ;
+            MiniGame.mesh = arreglollave[cont];
+            scene.add(arreglollave[cont]);
+            cont = cont + 1;*/
+        });
     });
     loadOBJWithMTL("assets/", "llaveAntigua.obj", "llaveAntigua.mtl", (object) => {
      object.position.x = 0;
@@ -242,6 +260,7 @@ function render() {
                     if( MiniGame.near ){
                         scene.remove(MiniGame.mesh);
                         MiniGame.completed = true;
+                        console.log("hola")
                         // OpenModal("JuegoAhorcado");
                     }
                 });
@@ -288,9 +307,9 @@ function render() {
                         players[i].translateZ(-players[i].forward * deltaTime);
                     }
                 });
-                camera.position.x = players[i].position.x;
-                camera.position.z = players[i].position.z;
-                camera.position.y = players[i].position.y + 20;
+                //camera.position.x = players[i].position.x;
+                //camera.position.z = players[i].position.z;
+                //camera.position.y = players[i].position.y + 20;
             }
 
             
@@ -452,9 +471,8 @@ function setupScene() {
             arreglollave[cont].position.x = MiniGame.posX;
             arreglollave[cont].position.y = MiniGame.posY;
             arreglollave[cont].position.z = MiniGame.posZ;
-            
-            //scene.add(arreglollave[cont]);
-            //scene.add(cofre);
+            scene.add(arreglollave[cont]);
+            scene.add(cofre);
             cont = cont + 1;
         });
     }
