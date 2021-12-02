@@ -13,7 +13,7 @@ var GameInstance;
 var time, timer, score, scoreTime;
 var modelReady = false;
 var objetosConColision = [];
-var isWorldReady = [ false, false, false ];
+var isWorldReady = [ false, false, false, false ];
 
 
 
@@ -25,52 +25,45 @@ $(document).ready(function(){
     setupScene();
     timer = setTimer(10);
     rayCaster = new THREE.Raycaster();
-    isWorldReady[0] = true;
-   loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
+    loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
         object.rotation.y = THREE.Math.degToRad(90);
         scene.add(object);
         isWorldReady[0] = true;
     });
+    loadOBJWithMTL("assets/", "Reaper.obj", "Reaper.mtl", (object) => {
+        GameInstance.addEnemy(object, 2);
+    });
     loadOBJWithMTL("assets/", "key3.obj", "key3.mtl", (object) => {
-     object.position.x = 0;
-      object.position.z = 0;
-         object.name = "llave";
-        scene.add(object);
+        object.position.x = 0;
+        object.position.z = 0;
+        object.name = "llave";
      
         objetosConColision.push(object);
-        isWorldReady[1] = true;
-        var cont=0;
-        var geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+        var cont = 0;
         GameInstance.MiniGames.forEach(MiniGame => {
-            var material = new THREE.MeshLambertMaterial({color: new THREE.Color(MiniGame.Material[0], MiniGame.Material[1], MiniGame.Material[2])});
-            var MiniGameBox = new THREE.Mesh(geometry, material)
-            MiniGameBox.position.x = MiniGame.posX;
-            MiniGameBox.position.y = MiniGame.posY;
-            MiniGameBox.position.z = MiniGame.posZ;
-            MiniGame.mesh = MiniGameBox;
-            scene.add(MiniGameBox);
-            /*arreglollave[cont] = object.clone();
+            arreglollave[cont] = object.clone();
             arreglollave[cont].position.x = MiniGame.posX;
             arreglollave[cont].position.y = MiniGame.posY;
             arreglollave[cont].position.z = MiniGame.posZ;
             MiniGame.mesh = arreglollave[cont];
             scene.add(arreglollave[cont]);
-            cont = cont + 1;*/
+            cont = cont + 1;
+            isWorldReady[3] = true;
         });
     });
     loadOBJWithMTL("assets/", "llaveAntigua.obj", "llaveAntigua.mtl", (object) => {
-     object.position.x = 0;
-      object.position.z = 0;
-         object.name = "llave2";
-        scene.add(object);
-     
+        object.position.x = 0;
+        object.position.z = 0;
+        object.name = "llave2";
+        GameInstance.CreateRoomKeys(object);
+        
         objetosConColision.push(object);
-        isWorldReady[1] = true;
+        isWorldReady[3] = true;
     });
     loadOBJWithMTL("assets/", "cofremaya.obj", "cofremaya.mtl", (object) => {
-     object.position.x = 0;
-      object.position.z = 0;
-         object.name = "cofre";
+        object.position.x = 7;
+        object.position.z = 4;
+        object.name = "cofre";
         scene.add(object);
      
         objetosConColision.push(object);
@@ -228,7 +221,6 @@ function render() {
     if(GameInstance != 0){
         if(!GameInstance.isOver()){
             if(modelReady){
-                
                 GameInstance.MiniGames.forEach(MiniGame => {
                     MiniGame.NearMinigame(players[0].position);
                 });
@@ -237,6 +229,17 @@ function render() {
                     players[i].yaw = 0;
                     players[i].forward = 0;
                     players[i].status = "Iddle"
+                }
+            }
+            if(isWorldReady[0]){
+                if(GameInstance.Enemy){
+                    if(!GameInstance.Enemy[0].created) GameInstance.Enemy[0].spawnEnemy1(scene, 0, THREE.Math.degToRad(270));
+                    if(!GameInstance.Enemy[1].created) GameInstance.Enemy[1].spawnEnemy1(scene, 1, THREE.Math.degToRad(180));
+                    for (let i = 0; i < GameInstance.Enemy.length; i++) {
+                        if(GameInstance.Enemy[i].created){
+                            GameInstance.updateEnemy(deltaTime, players);
+                        }
+                    }
                 }
             }
             // Player 1
@@ -259,9 +262,7 @@ function render() {
                 GameInstance.MiniGames.forEach((MiniGame, i) => {
                     if( MiniGame.near ){
                         scene.remove(MiniGame.mesh);
-                        MiniGame.completed = true;
-                        console.log("hola")
-                        // OpenModal("JuegoAhorcado");
+                        //GameInstance.checkBox(MiniGame);
                     }
                 });
             }
@@ -299,6 +300,7 @@ function render() {
                 }
             }
 
+
             for (let i = 0; i < players.length; i++) {
                 players[i].rotation.y += players[i].yaw * deltaTime;
                 var movement = players[i].translateZ(players[i].forward * deltaTime);
@@ -307,9 +309,6 @@ function render() {
                         players[i].translateZ(-players[i].forward * deltaTime);
                     }
                 });
-                //camera.position.x = players[i].position.x;
-                //camera.position.z = players[i].position.z;
-                //camera.position.y = players[i].position.y + 20;
             }
 
             

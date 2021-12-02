@@ -6,6 +6,8 @@ class GameMode{
     GameOver = false;
     GameStatus = true;
     MiniGames = [];
+    Enemy = [];
+    doorKey = []
     BoxCollitions = [];
     hab1Pos = [ [-2.6, 1, 6], [6, 1, 2.5],              // POSICION 0
                 [12, 1, 3],[16.5, 1, 3],                // POSICION 1 ... etc
@@ -55,6 +57,39 @@ class GameMode{
         this.GetRoomCollitions();
     }
 
+    CreateRoomKeys(keyMesh){
+        switch(this.room){
+            case 1:
+                for (let i = 0; i < 3; i++) {this.doorKey.push(keyMesh);}
+                break;
+            case 2:
+                for (let i = 0; i < 2; i++) {this.doorKey.push(keyMesh);}
+                break;
+            case 3:
+                for (let i = 0; i < 1; i++) {this.doorKey.push(keyMesh);}
+                break;
+            default:
+                break;
+        }
+    }
+
+    addEnemy(object, numberOfEnemies){
+        for (let i = 0; i < numberOfEnemies; i++) {
+            this.Enemy.push(new Enemy(object.clone()));
+        }
+    }
+
+    checkBox(MiniGame){
+        MiniGame.completed = true;
+        for (let i = 0; i < MiniGames.length; i++) {
+            
+        }
+    }
+
+    spawnKey(scene, index){
+        scene.add(this.doorKey[index]);
+    }
+
     GetMinigames(){
         for (let i = 0; i < this.objects; i++) {
             if(this.room < 2)
@@ -90,6 +125,15 @@ class GameMode{
             this.camPosZ = 27; 
             this.camPosY = 8.5; 
         }
+    }
+
+    updateEnemy(deltaTime, players){
+        for (let i = 0; i < this.Enemy.length; i++) {
+            this.Enemy[i].update(deltaTime, players);
+        }
+    }
+
+    updateAnimations(){
     }
 
     isOver() {
@@ -186,7 +230,7 @@ class MiniGame{
     completed = false;
     near = false;
     mesh;
-    isOpen = false;;
+    isOpen = false;
     constructor( position, Type, material) {
         this.posX = position[0];
         this.posY = position[1];
@@ -195,7 +239,12 @@ class MiniGame{
         this.Material = material;
     }
 
+    AnimateMesh(){
+        this.mesh.rotation.y += THREE.Math.degToRad(1);
+    }
+
     NearMinigame(posPlayer){
+        this.AnimateMesh();
         if ( !this.completed) {
             var X1 = posPlayer.x
             var Y1 = posPlayer.z
@@ -258,5 +307,135 @@ class BoxCollition{
             // No colisiona!
             return false;
         }
+    }
+}
+
+class Enemy{
+    created;
+    rotationRate = 10;
+    initialRotation;
+    currentRotation;
+    Turnleft;
+
+    waitTime = 3;
+    elapseSecs;
+    waiting;
+	rayCaster;
+    hooverPlus = 0;
+
+    rayCaster;
+    rayo;
+
+    patrolRoom1 = [
+        [15, 0, 5],
+        [15, 0, 20],
+        [0, 0, 5],
+        [0, 0, 20]
+    ];
+    constructor(mesh){
+        this.mesh = mesh;
+        this.created = false;
+    }
+
+    spawnEnemy1(scene, patrol, rotation){
+        if(!this.created){
+            this.mesh.position.x = this.patrolRoom1[patrol][0];
+            this.mesh.position.y = this.patrolRoom1[patrol][1];
+            this.mesh.position.z = this.patrolRoom1[patrol][2];
+            this.mesh.rotation.y = rotation;
+            this.initialRotation = 0;
+            this.currentRotation = 0;
+            this.Turnleft = true;
+            this.waiting = false;
+            scene.add(this.mesh);
+            this.created = true;
+
+            this.rayCaster = new THREE.Raycaster();
+
+            this.rayo = [
+                new THREE.Vector3(0,0,1),
+			    new THREE.Vector3(0,0,-1),
+			    new THREE.Vector3(1,0,0),
+			    new THREE.Vector3(-1,0,0)
+            ];
+    
+        }
+    }
+    
+    rotate(angle){
+        this.mesh.rotation.y += THREE.Math.degToRad(angle);
+        this.currentRotation += angle;
+    }
+    deleteEnemy(scene){
+        scene.remove(mesh);
+    }
+    
+    rotateTo(angle){
+        if (!this.waiting){
+            if(this.Turnleft){
+                if(this.currentRotation <= (90)){
+                    this.rotate(angle)
+                }else{
+                    this.wait();
+                }
+            }else{
+                if(this.currentRotation >= 0){
+                    this.rotate(-angle);
+                }else{
+                    this.wait();
+                }
+            }
+        }
+    }
+
+    wait(){
+        this.waiting = true;
+        this.elapseSecs = 0;
+    }
+
+    change(){
+        this.waiting = false;
+        if(this.Turnleft) {this.Turnleft = false; return}
+        if(!this.Turnleft) {this.Turnleft = true; return}
+    }
+
+    update(deltaTime, players){
+        this.updateAnimation(deltaTime);
+        this.canSeePlayer(players);
+
+        if(!this.waiting){
+            this.rotateTo(this.rotationRate * deltaTime);
+        }else{
+            this.elapseSecs += 1 * deltaTime;
+            if(this.elapseSecs > this.waitTime){
+                this.change();
+            }
+        }
+    }
+
+    updateAnimation(deltaTime){
+        this.hooverPlus += 1 * deltaTime;
+        this.mesh.position.y = Math.cos(this.hooverPlus) / 3;
+        // console.log(this.mesh.position.y);
+    }
+
+    canSeePlayer(players){
+        players[0].updateMatrixWorld();
+        for (let i = 0; i < this.rayo.length; i++) {
+            this.rayCaster.set(this.mesh.position, this.rayo[i]);
+            var colisiones = rayCaster.intersectObjects(players, true);
+            if(colisiones.length > 0 && colisiones[0].distance < 100){
+                console.log("veo algo");
+            }
+            
+        }
+
+    }
+}
+
+class Position{
+    constructor(x, z){
+        this.X = x;
+        this.Z = z;
     }
 }
