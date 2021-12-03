@@ -56,7 +56,13 @@ class GameMode{
         this.objects = 3;
         this.mode = mode;
         this.numPlayers = numJugadores; 
-        this.GetMinigames();
+        if(this.mode == 1){
+            this.GetMinigames();
+        }else{
+            this.vidas = 1;
+            document.getElementById("Corazon3").style.visibility = "hidden";
+            document.getElementById("Corazon2").style.visibility = "hidden";
+        }
         this.getCurrentRoom();
         this.GetRoomCollitions();
     }
@@ -81,6 +87,10 @@ class GameMode{
         for (let i = 0; i < numberOfEnemies; i++) {
             this.Enemy.push(new Enemy(cloneFBX(object)));
         }
+    }
+
+    addEnemy2(object){
+        this.Enemy.push(new ControllerEnemy(object.clone(), this.room));
     }
 
     checkBox(MiniGame){
@@ -139,9 +149,9 @@ class GameMode{
         }
     }
 
-    updateEnemy(deltaTime, players){
+    updateEnemy(deltaTime, players, scene){
         for (let i = 0; i < this.Enemy.length; i++) {
-            this.Enemy[i].update(deltaTime, players, this);
+            this.Enemy[i].update(deltaTime, players, this, scene);
         }
         if(this.vidas == 0){
             this.GameOver = true;
@@ -366,6 +376,8 @@ class Enemy{
     hooverPlus = 0;
     mixer = [];
 
+    particles;
+
     patrolRoom;
     patrolRoom1 = [
         [15, 0, 5],
@@ -412,6 +424,7 @@ class Enemy{
                     this.mesh.position.z = this.patrolRoom3[patrol][2];
                     break;
             }
+            this.particles = new particulasClass();
             this.currentPatrol = patrol;
             this.mesh.rotation.y = rotation;
             this.currentRotation = 0;
@@ -468,12 +481,15 @@ class Enemy{
 
     attack(deltaTime, players, juego){
         this.attackAnimation += 1 * deltaTime;
+        this.particles.render(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z);
+        this.particles.prender();
         if(this.attackAnimation > this.attackTime){
             if(this.collition.isColliding(players)){
-                this.dealDamage(players, juego);
+                this.dealDamage(juego);
             }
             this.isAtacking = false;
             this.attackAnimation = 0;
+            this.particles.apagar();
         }
     }
 
@@ -510,8 +526,128 @@ class Enemy{
         }
     }
 
-    dealDamage(players, juego){
+    dealDamage(juego){
             juego.minusVida();
+    }
+}
+
+class ControllerEnemy{
+    spawnTime;
+    Enemies = [];
+    // [x,x],[y,y]
+    room1Spawn = [
+        [-6, 18],
+        [3, 19]
+    ];
+    room2Spawn = [
+        [-28, -2],
+        [6, 17]
+    ];
+    room3Spawn = [
+        [-21, -10],
+        [23, 29]
+    ];
+    constructor(object, room){
+        this.mesh = object;
+        this.room = room;
+        this.spawn = this.getSpawn();
+        this.spawnRate = 1;
+        this.spawnTime = 0;
+    }
+
+    getType(){
+        var type = Math.floor(Math.random() * 2) + 1;
+        if(type == 1){
+            return "lefty";
+        }else{
+            return "righty";
+        }
+    }
+
+    getSpawn(){
+        switch(this.room){
+            case 1:
+                return this.room1Spawn;
+            case 2:
+                return this.room2Spawn;
+            case 3:
+                return this.room3Spawn;
+        }
+    }
+
+    update(deltaTime, players, game, scene){
+        this.spawnTime += this.spawnRate * deltaTime;
+        if(this.spawnTime >= 3){
+            this.spawnEnemy(scene);
+        }
+        for (let i = 0; i < this.Enemies.length; i++) {
+            if(this.Enemies[i]){
+                var destroy = this.Enemies[i].update(deltaTime, players, game, scene);
+                if(destroy){ delete this.Enemies[i];}
+            }
+            
+        }
+    }
+
+    spawnEnemy(scene){
+        this.spawnTime = 0;
+        if(this.spawnRate <= 2)this.spawnRate += 0.02;
+        var type = this.getType();
+        if(type == "lefty"){
+            var rotation = 90;
+            var x = this.spawn[0][0];
+            var y = (Math.random() * this.spawn[1][1]) + this.spawn[1][0];
+            console.log("Spawn Lefty!");
+            console.log("x: " + x + "z: " + y);
+        }else{
+            var rotation = -90;
+            var x = this.spawn[0][1];
+            var y = (Math.random() * this.spawn[1][1]) + this.spawn[1][0];
+            console.log("Spawn righty...");
+            console.log("x: " + x + "z: " + y);
+        }
+        this.Enemies.push(new EnemyWave(x, y,rotation,this.mesh, scene));
+    }
+}
+
+class EnemyWave{
+    spawnTime = 10;
+    speed = 1;
+    attackDistance = 2;
+    constructor(posX, posY, rotation, mesh, scene){
+        this.mesh = mesh.clone();
+        this.mesh.position.x = posX;
+        this.mesh.position.z = posY;
+        this.mesh.rotation.y = THREE.Math.degToRad(rotation);
+        this.collition = new RoundCollition(this.mesh.position.x, this.mesh.position.z, this.attackDistance);
+        this.speed = 3;
+        scene.add(this.mesh);
+    }
+
+    update(deltaTime, players, juego, scene){
+        this.updateCollition(players, juego);
+        this.spawnTime -= 1 * deltaTime;
+        if(this.spawnTime <= 0){
+            scene.remove(this.mesh);
+            this.mesh = 0;
+            return true;
+        }else{
+            this.move(deltaTime);
+            return false;
+        }
+    }
+    move(deltaTime){
+        this.mesh?.translateZ(deltaTime * this.speed);
+    }
+
+    updateCollition(players, juego){
+        var position = [this.mesh.position.x, this.mesh.position.z];
+        this.collition.setPosition(position);
+        if(this.collition.isColliding(players)){this.dealDamage(juego);}
+    }
+
+    dealDamage(juego){
+        juego.minusVida();
     }
 }
 

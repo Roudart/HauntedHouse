@@ -2,7 +2,7 @@ var scene, camera, renderer, clock;
 var players = [];
 var keys = {};
 var isWorldReady = [ false, false , false];
-var distanceCamera = [18,24,8.5];
+var distanceCamera = [18,24,15];
 var camPositions = [[0, 12], [-8, 10], [-16, 27]]
 var rayCaster;
 var mixers = [];
@@ -23,16 +23,26 @@ $(document).ready(function(){
     var options = loadOptions()
     GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo);
     setupScene();
-    timer = setTimer(10);
+    if(GameInstance.mode == 1){
+        timer = setTimer(10);
+    }else{
+        timer = setTimer2();
+    }
     rayCaster = new THREE.Raycaster();
     loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
         object.rotation.y = THREE.Math.degToRad(90);
         scene.add(object);
         isWorldReady[0] = true;
     });
-    loadOBJWithMTL("assets/", "Reaper.obj", "Reaper.mtl", (object) => {
-        GameInstance.addEnemy(object, 3);
-    });
+    if(GameInstance.mode == 1){
+        loadOBJWithMTL("assets/", "Reaper.obj", "Reaper.mtl", (object) => {
+            GameInstance.addEnemy(object, 3);
+        });
+    }else{
+        loadOBJWithMTL("assets/", "FlyingGhost.obj", "FlyingGhost.mtl", (object) => {
+            GameInstance.addEnemy2(object);
+        });
+    }
     loadOBJWithMTL("assets/", "key3.obj", "key3.mtl", (object) => {
         object.position.x = 0;
         object.position.z = 0;
@@ -242,13 +252,17 @@ function render() {
             }
             if(allReady){
                 if(GameInstance.Enemy){
-                    if(!GameInstance.Enemy[0].created) GameInstance.Enemy[0].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 1, GameInstance.currentRoom);
-                    if(!GameInstance.Enemy[1].created) GameInstance.Enemy[1].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 2, GameInstance.currentRoom);
-                    if(!GameInstance.Enemy[2].created) GameInstance.Enemy[2].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 3, GameInstance.currentRoom);
-                    for (let i = 0; i < GameInstance.Enemy.length; i++) {
-                        if(GameInstance.Enemy[i].created){
-                            GameInstance.updateEnemy(deltaTime, players);
+                    if(GameInstance.mode == 1){
+                        if(!GameInstance.Enemy[0].created) GameInstance.Enemy[0].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 1, GameInstance.currentRoom);
+                        if(!GameInstance.Enemy[1].created) GameInstance.Enemy[1].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 2, GameInstance.currentRoom);
+                        if(!GameInstance.Enemy[2].created) GameInstance.Enemy[2].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 3, GameInstance.currentRoom);
+                        for (let i = 0; i < GameInstance.Enemy.length; i++) {
+                            if(GameInstance.Enemy[i].created){
+                                GameInstance.updateEnemy(deltaTime, players);
+                            }
                         }
+                    }else{
+                        GameInstance.updateEnemy(deltaTime, players, scene);
                     }
                 }
             }
@@ -323,7 +337,9 @@ function render() {
             
         }else{ // Se acabó el juego
             clearInterval(timer);
-            GameInstance.saveScore(scoreTime, JSON.parse(localStorage.getItem("Usuario")));
+
+            if(GameInstance.mode == 1){GameInstance.saveScore(scoreTime, JSON.parse(localStorage.getItem("Usuario")));}
+            else{GameInstance.saveScore(time, JSON.parse(localStorage.getItem("Usuario")));}
             for (let i = 0; i < players.length; i++) {
                 if(GameInstance.GameStatus){
                     players[i].status = "Win";
@@ -543,6 +559,17 @@ function setTimer(minutes){
         GameInstance.GameStatus = false;
         document.getElementById("demo").innerHTML = "You Loose!";
     }
+    }, 1000);
+    return x;
+}
+
+function setTimer2(){
+    score = 0;
+    time = 0;
+    var x = setInterval(function() {
+        score += 1000;
+        time += 1;
+        document.getElementById("demo").innerHTML = time;
     }, 1000);
     return x;
 }
