@@ -94,6 +94,14 @@ class GameMode{
         scene.add(this.doorKey[index]);
     }
 
+    minusVida(){
+        var nombreCorazon = "Corazon" + this.vidas;
+        this.vidas -= 1;
+        document.getElementById(nombreCorazon).style.visibility = "hidden";
+        console.log("-1 Corazon");
+        console.log(this.vidas);
+    }
+
     GetMinigames(){
         for (let i = 0; i < this.objects; i++) {
             if(this.room < 2)
@@ -331,8 +339,8 @@ class RoundCollition{
             for (let i = 0; i < players.length; i++) {
                     var distance = Math.sqrt(( (this.X0-players[i].position.x)*(this.X0-players[i].position.x) ) + ( (this.Y0-players[i].position.z)*(this.Y0-players[i].position.z) )); 
                     if(distance < this.r) {return true;}
-                    return false;
-            }
+                }
+            return false;
         }
     }
 }
@@ -503,11 +511,7 @@ class Enemy{
     }
 
     dealDamage(players, juego){
-        for (let i = 0; i < players.length; i++) {
-            juego.vidas -= 1;
-            console.log("-1 Corazon");
-            console.log(juego.vidas);
-        }
+            juego.minusVida();
     }
 }
 
