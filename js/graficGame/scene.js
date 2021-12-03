@@ -21,7 +21,7 @@ $(document).ready(function(){
 
 
     var options = loadOptions()
-    GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo);
+    GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo, options.Dificultad);
     setupScene();
     if(GameInstance.mode == 1){
         timer = setTimer(10);

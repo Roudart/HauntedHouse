@@ -10,6 +10,7 @@ class GameMode{
     doorKey = []
     BoxCollitions = [];
     currentRoom;
+    dificulty = 1;
     vidas = 3;
     hab1Pos = [ [-2.6, 1, 6], [6, 1, 2.5],              // POSICION 0
                 [12, 1, 3],[16.5, 1, 3],                // POSICION 1 ... etc
@@ -51,7 +52,7 @@ class GameMode{
                         [8.6, 6.3], [13.3, 5.5]
                         ];
                         // [x1, y1]  ,  [x2, y2]
-    constructor( habitacion, numJugadores, mode, ) {
+    constructor( habitacion, numJugadores, mode, dificultad) {
         this.room = habitacion;
         this.currentRoom = habitacion;
         console.log(this.currentRoom);
@@ -64,6 +65,12 @@ class GameMode{
             this.vidas = 1;
             document.getElementById("Corazon3").style.visibility = "hidden";
             document.getElementById("Corazon2").style.visibility = "hidden";
+        }
+        this.dificulty = dificultad;
+        if(this.dificulty == 1){
+            console.log("Facil...");
+        }else{
+            console.log("DIFICIL!! 0_0");
         }
         this.getCurrentRoom();
         this.GetRoomCollitions();
