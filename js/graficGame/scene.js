@@ -13,7 +13,7 @@ var GameInstance;
 var time, timer, score, scoreTime;
 var modelReady = false;
 var objetosConColision = [];
-var isWorldReady = [ false, false, false, false ];
+var isWorldReady = [ false, false, false ];
 
 
 
@@ -31,7 +31,7 @@ $(document).ready(function(){
         isWorldReady[0] = true;
     });
     loadOBJWithMTL("assets/", "Reaper.obj", "Reaper.mtl", (object) => {
-        GameInstance.addEnemy(object, 2);
+        GameInstance.addEnemy(object, 3);
     });
     loadOBJWithMTL("assets/", "key3.obj", "key3.mtl", (object) => {
         object.position.x = 0;
@@ -40,6 +40,7 @@ $(document).ready(function(){
      
         objetosConColision.push(object);
         var cont = 0;
+        isWorldReady[2] = true;
         GameInstance.MiniGames.forEach(MiniGame => {
             arreglollave[cont] = object.clone();
             arreglollave[cont].position.x = MiniGame.posX;
@@ -48,7 +49,6 @@ $(document).ready(function(){
             MiniGame.mesh = arreglollave[cont];
             scene.add(arreglollave[cont]);
             cont = cont + 1;
-            isWorldReady[3] = true;
         });
     });
     loadOBJWithMTL("assets/", "llaveAntigua.obj", "llaveAntigua.mtl", (object) => {
@@ -58,7 +58,7 @@ $(document).ready(function(){
         GameInstance.CreateRoomKeys(object);
         
         objetosConColision.push(object);
-        isWorldReady[3] = true;
+        isWorldReady[2] = true;
     });
     loadOBJWithMTL("assets/", "cofremaya.obj", "cofremaya.mtl", (object) => {
         object.position.x = 7;
@@ -67,9 +67,15 @@ $(document).ready(function(){
         scene.add(object);
      
         objetosConColision.push(object);
-       // isWorldReady[1] = true;
     });
     var FBXLoader = new THREE.FBXLoader();
+    // FBXLoader.load('assets/attackTEXTURED.fbx', (reaper) => {
+    //     reaper.mixer = new THREE.AnimationMixer(reaper);
+    //     GameInstance.addEnemy(reaper, 3);
+
+    //     var action = reaper.mixer.clipAction(reaper.animations[0]);
+    //     action.play();
+    // }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded reaper')});
     FBXLoader.load('obj/Anim_SoloCorrer.fbx', (personaje) => {
         personaje.mixer = new THREE.AnimationMixer(personaje);
         mixers.push(personaje.mixer);
@@ -161,7 +167,6 @@ $(document).ready(function(){
                                 var action = personaje.mixer.clipAction(personaAni.animations[0]);
                                 action.play();
                                 actions2.push(action);
-                                isWorldReady[2] = true;
                 
                             }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
                             (error) =>{
@@ -231,10 +236,15 @@ function render() {
                     players[i].status = "Iddle"
                 }
             }
-            if(isWorldReady[0]){
+            var allReady;
+            for (let i = 0; i < isWorldReady.length; i++) {
+                if(isWorldReady[i]){allReady = true}else{ allReady = false; break;}
+            }
+            if(allReady){
                 if(GameInstance.Enemy){
-                    if(!GameInstance.Enemy[0].created) GameInstance.Enemy[0].spawnEnemy1(scene, 0, THREE.Math.degToRad(270));
-                    if(!GameInstance.Enemy[1].created) GameInstance.Enemy[1].spawnEnemy1(scene, 1, THREE.Math.degToRad(180));
+                    if(!GameInstance.Enemy[0].created) GameInstance.Enemy[0].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 1, GameInstance.currentRoom);
+                    if(!GameInstance.Enemy[1].created) GameInstance.Enemy[1].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 2, GameInstance.currentRoom);
+                    if(!GameInstance.Enemy[2].created) GameInstance.Enemy[2].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 3, GameInstance.currentRoom);
                     for (let i = 0; i < GameInstance.Enemy.length; i++) {
                         if(GameInstance.Enemy[i].created){
                             GameInstance.updateEnemy(deltaTime, players);
@@ -262,7 +272,6 @@ function render() {
                 GameInstance.MiniGames.forEach((MiniGame, i) => {
                     if( MiniGame.near ){
                         scene.remove(MiniGame.mesh);
-                        //GameInstance.checkBox(MiniGame);
                     }
                 });
             }
@@ -315,7 +324,6 @@ function render() {
         }else{ // Se acabó el juego
             clearInterval(timer);
             GameInstance.saveScore(scoreTime, JSON.parse(localStorage.getItem("Usuario")));
-            // OpenModal("Score");
             for (let i = 0; i < players.length; i++) {
                 if(GameInstance.GameStatus){
                     players[i].status = "Win";

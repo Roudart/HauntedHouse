@@ -9,6 +9,8 @@ class GameMode{
     Enemy = [];
     doorKey = []
     BoxCollitions = [];
+    currentRoom;
+    vidas = 3;
     hab1Pos = [ [-2.6, 1, 6], [6, 1, 2.5],              // POSICION 0
                 [12, 1, 3],[16.5, 1, 3],                // POSICION 1 ... etc
                 [15.5, 1, 13.3], [16.5, 1 ,10.5],
@@ -49,6 +51,8 @@ class GameMode{
                         [8.6, 6.3], [13.3, 5.5]];
     constructor( habitacion, numJugadores, mode, ) {
         this.room = habitacion;
+        this.currentRoom = habitacion;
+        console.log(this.currentRoom);
         this.objects = 3;
         this.mode = mode;
         this.numPlayers = numJugadores; 
@@ -75,7 +79,7 @@ class GameMode{
 
     addEnemy(object, numberOfEnemies){
         for (let i = 0; i < numberOfEnemies; i++) {
-            this.Enemy.push(new Enemy(object.clone()));
+            this.Enemy.push(new Enemy(cloneFBX(object)));
         }
     }
 
@@ -129,11 +133,12 @@ class GameMode{
 
     updateEnemy(deltaTime, players){
         for (let i = 0; i < this.Enemy.length; i++) {
-            this.Enemy[i].update(deltaTime, players);
+            this.Enemy[i].update(deltaTime, players, this);
         }
-    }
-
-    updateAnimations(){
+        if(this.vidas == 0){
+            this.GameOver = true;
+            this.GameStatus = false;
+        }
     }
 
     isOver() {
@@ -310,126 +315,199 @@ class BoxCollition{
     }
 }
 
+class RoundCollition{
+    constructor(X0, Y0, r){
+        this.X0 = X0;
+        this.Y0 = Y0;
+        this.r = r;
+    }
+
+    setPosition(position){
+        this.X0 = position[0];
+        this.Y0 = position[1];
+    }
+    isColliding(players){
+        if (players){
+            for (let i = 0; i < players.length; i++) {
+                    var distance = Math.sqrt(( (this.X0-players[i].position.x)*(this.X0-players[i].position.x) ) + ( (this.Y0-players[i].position.z)*(this.Y0-players[i].position.z) )); 
+                    if(distance < this.r) {return true;}
+                    return false;
+            }
+        }
+    }
+}
+
 class Enemy{
+    collition;
+    attackDistance = 2;
+    isAtacking;
     created;
-    rotationRate = 10;
-    initialRotation;
+    rotationRate = -30;
+    rotationAngle;
     currentRotation;
-    Turnleft;
+    nextRotation;
+    currentPatrol;
+    nextPatrol;
+    isMoving;
+    speed;
+    animation;
+    attackAnimation;
+    attackTime;
 
-    waitTime = 3;
-    elapseSecs;
-    waiting;
-	rayCaster;
+
     hooverPlus = 0;
+    mixer = [];
 
-    rayCaster;
-    rayo;
-
+    patrolRoom;
     patrolRoom1 = [
         [15, 0, 5],
         [15, 0, 20],
-        [0, 0, 5],
-        [0, 0, 20]
+        [0, 0, 20],
+        [0, 0, 5]
+    ];
+    patrolRoom2 = [
+        [-6, 0, 10],
+        [-6, 0, 20],
+        [-26, 0, 20],
+        [-26, 0, 10]
+    ];
+    patrolRoom3 = [
+        [-13, 0, 24],
+        [-13, 0, 30],
+        [-18, 0, 30],
+        [-18, 0, 24]
     ];
     constructor(mesh){
         this.mesh = mesh;
         this.created = false;
     }
 
-    spawnEnemy1(scene, patrol, rotation){
+    spawnEnemy1(scene, patrol, rotation, patrolRoom, currentRoom){
         if(!this.created){
-            this.mesh.position.x = this.patrolRoom1[patrol][0];
-            this.mesh.position.y = this.patrolRoom1[patrol][1];
-            this.mesh.position.z = this.patrolRoom1[patrol][2];
+            switch(patrolRoom){
+                case 1:
+                    this.patrolRoom = this.patrolRoom1;
+                    this.mesh.position.x = this.patrolRoom1[patrol][0];
+                    this.mesh.position.y = this.patrolRoom1[patrol][1];
+                    this.mesh.position.z = this.patrolRoom1[patrol][2];
+                    break;
+                case 2:
+                    this.patrolRoom = this.patrolRoom2;
+                    this.mesh.position.x = this.patrolRoom2[patrol][0];
+                    this.mesh.position.y = this.patrolRoom2[patrol][1];
+                    this.mesh.position.z = this.patrolRoom2[patrol][2];
+                    break;
+                case 3:
+                    this.patrolRoom = this.patrolRoom3;
+                    this.mesh.position.x = this.patrolRoom3[patrol][0];
+                    this.mesh.position.y = this.patrolRoom3[patrol][1];
+                    this.mesh.position.z = this.patrolRoom3[patrol][2];
+                    break;
+            }
+            this.currentPatrol = patrol;
             this.mesh.rotation.y = rotation;
-            this.initialRotation = 0;
             this.currentRotation = 0;
-            this.Turnleft = true;
-            this.waiting = false;
+            this.nextRotation = 0;
+            this.rotationAngle = -90;
+            this.speed = 0.1;
+            this.isMoving = true;
+            this.attackAnimation = 0;
+            this.attackTime = 8;
+            this.isAtacking = false;
             scene.add(this.mesh);
+            this.collition = new RoundCollition(this.mesh.position.x, this.mesh.position.y, this.attackDistance);
             this.created = true;
-
-            this.rayCaster = new THREE.Raycaster();
-
-            this.rayo = [
-                new THREE.Vector3(0,0,1),
-			    new THREE.Vector3(0,0,-1),
-			    new THREE.Vector3(1,0,0),
-			    new THREE.Vector3(-1,0,0)
-            ];
-    
         }
     }
     
-    rotate(angle){
-        this.mesh.rotation.y += THREE.Math.degToRad(angle);
-        this.currentRotation += angle;
-    }
     deleteEnemy(scene){
         scene.remove(mesh);
     }
     
+    rotate(deltaTime){
+        this.mesh.rotation.y += THREE.Math.degToRad(this.rotationRate * deltaTime);
+        this.currentRotation += this.rotationRate * deltaTime;
+        if(Math.floor(this.currentRotation) == this.nextRotation){
+            console.log("terminamos de rotar");
+            this.currentRotation = Math.floor(this.currentRotation);
+            console.log(this.currentRotation);
+            this.mesh.rotation.y = THREE.Math.degToRad(this.currentRotation);
+            this.mesh.position.x = Math.round(this.mesh.position.x);
+            this.mesh.position.z = Math.round(this.mesh.position.z);
+            this.currentPatrol = this.currentPatrol + 1;
+            if(this.currentPatrol == this.patrolRoom.length) this.currentPatrol = 0;
+            this.isMoving = true;
+        }
+    }
     rotateTo(angle){
-        if (!this.waiting){
-            if(this.Turnleft){
-                if(this.currentRotation <= (90)){
-                    this.rotate(angle)
-                }else{
-                    this.wait();
-                }
-            }else{
-                if(this.currentRotation >= 0){
-                    this.rotate(-angle);
-                }else{
-                    this.wait();
-                }
-            }
-        }
+        this.nextRotation = angle;
+        this.isMoving = false;
     }
 
-    wait(){
-        this.waiting = true;
-        this.elapseSecs = 0;
-    }
-
-    change(){
-        this.waiting = false;
-        if(this.Turnleft) {this.Turnleft = false; return}
-        if(!this.Turnleft) {this.Turnleft = true; return}
-    }
-
-    update(deltaTime, players){
+    update(deltaTime, players, juego){
         this.updateAnimation(deltaTime);
-        this.canSeePlayer(players);
-
-        if(!this.waiting){
-            this.rotateTo(this.rotationRate * deltaTime);
-        }else{
-            this.elapseSecs += 1 * deltaTime;
-            if(this.elapseSecs > this.waitTime){
-                this.change();
+        this.updateCollition();
+        if(!this.isAtacking){
+            if(this.isMoving){
+                this.move(deltaTime, players);
+            }else{
+                this.rotate(deltaTime);
             }
+        }else{
+            this.attack(deltaTime, players, juego);
         }
+    }
+
+    attack(deltaTime, players, juego){
+        this.attackAnimation += 1 * deltaTime;
+        if(this.attackAnimation > this.attackTime){
+            if(this.collition.isColliding(players)){
+                this.dealDamage(players, juego);
+            }
+            this.isAtacking = false;
+            this.attackAnimation = 0;
+        }
+    }
+
+    updateCollition(){
+        var position = [this.mesh.position.x, this.mesh.position.z];
+        this.collition.setPosition(position);
+        if(this.collition.isColliding(players)){this.isAtacking = true;}
     }
 
     updateAnimation(deltaTime){
         this.hooverPlus += 1 * deltaTime;
         this.mesh.position.y = Math.cos(this.hooverPlus) / 3;
-        // console.log(this.mesh.position.y);
     }
 
-    canSeePlayer(players){
-        players[0].updateMatrixWorld();
-        for (let i = 0; i < this.rayo.length; i++) {
-            this.rayCaster.set(this.mesh.position, this.rayo[i]);
-            var colisiones = rayCaster.intersectObjects(players, true);
-            if(colisiones.length > 0 && colisiones[0].distance < 100){
-                console.log("veo algo");
-            }
-            
+    move(deltaTime){
+        for (let i = 0; i < this.patrolRoom.length; i++) {
+            var nextPatrol = this.currentPatrol + 1;
+            if(nextPatrol == this.patrolRoom.length) nextPatrol = 0;
+            this.moveTo(nextPatrol, deltaTime);
         }
+    }
 
+    moveTo(nextPatrol, deltaTime){
+        var xTo = this.patrolRoom[nextPatrol][0];
+        var zTo = this.patrolRoom[nextPatrol][2];
+        var xFrom = this.mesh.position.x.toFixed(2);
+        var zFrom = this.mesh.position.z.toFixed(2);
+        if (xTo == xFrom && zTo == zFrom){
+            // Llego al destino
+            // console.log("Llegue!");
+            this.rotateTo(this.currentRotation + this.rotationAngle);
+        }else{
+            this.mesh.translateZ(deltaTime * this.speed);
+        }
+    }
+
+    dealDamage(players, juego){
+        for (let i = 0; i < players.length; i++) {
+            juego.vidas -= 1;
+            console.log("-1 Corazon");
+            console.log(juego.vidas);
+        }
     }
 }
 
@@ -438,4 +516,54 @@ class Position{
         this.X = x;
         this.Z = z;
     }
+}
+
+function cloneFBX(fbx){
+    const clone = fbx.clone(true)
+        clone.animations = fbx.animations
+        clone.skeleton = { bones: [] }
+    
+        const skinnedMeshes = {}
+    
+        fbx.traverse(node => {
+            if (node.isSkinnedMesh) {
+                skinnedMeshes[node.name] = node
+            }
+        })
+    
+        const cloneBones = {}
+        const cloneSkinnedMeshes = {}
+    
+        clone.traverse(node => {
+            if (node.isBone) {
+                cloneBones[node.name] = node
+            }
+    
+            if (node.isSkinnedMesh) {
+                cloneSkinnedMeshes[node.name] = node
+            }
+        })
+    
+        for (let name in skinnedMeshes) {
+            const skinnedMesh = skinnedMeshes[name]
+            const skeleton = skinnedMesh.skeleton
+            const cloneSkinnedMesh = cloneSkinnedMeshes[name]
+    
+            const orderedCloneBones = []
+    
+            for (let i=0; i<skeleton.bones.length; i++) {
+                const cloneBone = cloneBones[skeleton.bones[i].name]
+                orderedCloneBones.push(cloneBone)
+            }
+    
+            cloneSkinnedMesh.bind(
+                new THREE.Skeleton(orderedCloneBones, skeleton.boneInverses),
+                cloneSkinnedMesh.matrixWorld)
+    
+            // For animation to work correctly:
+            clone.skeleton.bones.push(cloneSkinnedMesh)
+            clone.skeleton.bones.push(...orderedCloneBones)
+        }
+    
+        return clone
 }
