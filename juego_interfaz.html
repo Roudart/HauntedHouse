@@ -12,7 +12,6 @@
     <script src="js/models/facebookScore.js"></script>
     <script src="js/libs/jquery-3.6.0.min.js"></script>
     <script src="js/libs/three2.js"></script>
-    <script src="js/libs/particulas.js"></script>
     <script src="js/libs/MTLLoader.js"></script>
     <script src="js/libs/FBXLoader.js"></script>
     <script src="js/libs/OBJLoader.js"></script>
@@ -28,7 +27,10 @@ document.getElementById("popup_webgl").style.display = "none";
          }  
 function salirJuego() { 
 document.getElementById("popup_webgl").style.display = "none";  
-//shareScore(scoreTime);
+// se va a ir a la pagina principal
+
+window.location.href="menu_principal.html";
+
          } 
       function shareFB() {
         shareScore(scoreTime);
@@ -72,7 +74,9 @@ document.getElementById("popup_webgl").style.display = "none";
     <!-- HTML content of popup_webgl -->
     <div id="popup_webgl" class="popup_block" style="text-align:center;">
         <img class="bloquePause" src="./img/bloquePausa.png" alt="...">
-                <div class="card-img-overlay text-white justify-content-center " style="height: 100%;">
+                <div class="card-img-overlay text-white justify-content-center " style="
+    height: 100%;
+">
                   <div class="container">
                     <img class="card-img" src="./img/continuar.png" onclick="pausarJuego()" alt="Snow">
                     <!--<div class="centered halloween">Continuar</div> -->
@@ -92,10 +96,6 @@ document.getElementById("popup_webgl").style.display = "none";
 
                  
                 </div>
-    </div>
-
-    <div id="popup_ROCK" class="popup_block" style="text-align: center;">
-      <p style="background-color: brown;" id="contadorJuego">hola</p>
     </div>
 
       <!--  <div class="d-flex flex-column min-vh-100 justify-content-top align-items-top transparent navbar-inverse navbar-fixed-top"> -->
@@ -120,9 +120,9 @@ document.getElementById("popup_webgl").style.display = "none";
       
                       
               <div class="ml-auto" >
-                <img class="diez_porc" src="./img/corazon_naranja.png"alt="" id="Corazon3">
-                <img class="diez_porc" src="./img/corazon_negro.png"  alt="" id="Corazon2">
-                <img class="diez_porc" src="./img/corazon_verde.png"  alt="" id="Corazon1">
+                <img class="diez_porc" src="./img/corazon_naranja.png" alt="">
+                <img class="diez_porc" src="./img/corazon_negro.png" alt="">
+                <img class="diez_porc" src="./img/corazon_verde.png" alt="">
               </div>
             
               <div class="progress" style="height:20px">
