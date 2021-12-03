@@ -1,9 +1,5 @@
 var options = loadOptions();
 
-var eligioMapa = false;
-var eligioJug = false;
-var eligioDifi = false;
-
 $(document).ready(function(){
     // Elegir Mapa
     pressOptions();
@@ -13,7 +9,6 @@ $(document).ready(function(){
         $("#Mapa3").css("opacity", "1");
         options.Mapa = 1;
         saveOption(options);
-        eligioMapa = true;
     });
     $("#Mapa2").click(function(){
         $("#Mapa1").css("opacity", "1");
@@ -21,7 +16,6 @@ $(document).ready(function(){
         $("#Mapa3").css("opacity", "1");
         options.Mapa = 2;
         saveOption(options);
-        eligioMapa = true;
     });
     $("#Mapa3").click(function(){
         $("#Mapa1").css("opacity", "1");
@@ -29,7 +23,6 @@ $(document).ready(function(){
         $("#Mapa3").css("opacity", "0.5");
         options.Mapa = 3;
         saveOption(options);
-        eligioMapa = true;
     });
 
     // Elegir cuantos jugadores
@@ -38,14 +31,12 @@ $(document).ready(function(){
         $("#Coop").css("opacity", "1");
         options.Jugadores = 1;
         saveOption(options);
-        eligioJug = true;
     });
     $("#Coop").click(function(){
         $("#Solo").css("opacity", "1");
         $("#Coop").css("opacity", "0.5");
         options.Jugadores = 2;
         saveOption(options);
-        eligioJug = true;
     });
 
     // Elegir modo de juego
@@ -54,32 +45,12 @@ $(document).ready(function(){
         $("#ModeHorde").css("opacity", "1");
         options.Modo = 1;
         saveOption(options);
-        eligioDifi= true;
     });
     $("#ModeHorde").click(function(){
         $("#ModeTime").css("opacity", "1");
         $("#ModeHorde").css("opacity", "0.5");
         options.Modo = 2;
         saveOption(options);
-         eligioDifi= true;
-    });
-     $("#jugarYa").click(function(){
-        if(eligioMapa == true){
-            if(eligioJug == true){
-                if(eligioDifi == true){
-                        window.location.href="juego_interfaz.html";
-                    }else{
-                         alert ("Elige dificultad"); 
-                    }
-            }else{
-                 alert ("Elige num jugadores"); 
-            }
-        }else{
-            
-  alert ("Elige el mapa");  
-        }
-        
-
     });
 });
 

@@ -1,8 +1,7 @@
 $(document).ready(function(){
 
-    $("#btn-confirm").click(function(){
+    $(".btn-confirm").click(function(){
 
-     window.location.href="juego_interfaz.html";
         // Confirmamos las credenciales
 
         var PosibleUser = new Usuario(
@@ -12,7 +11,5 @@ $(document).ready(function(){
         );
         
         PosibleUser.devolverUsuario(PosibleUser);
-          
     });
 });
-
