@@ -29,7 +29,7 @@ $(document).ready(function(){
         timer = setTimer2();
     }
     rayCaster = new THREE.Raycaster();
-    loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
+    loadOBJWithMTL("assets/", "puertas_abiertas.obj", "puertas_abiertas.mtl", (object) => {
         object.rotation.y = THREE.Math.degToRad(90);
         scene.add(object);
         isWorldReady[0] = true;
