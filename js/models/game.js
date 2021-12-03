@@ -48,7 +48,9 @@ class GameMode{
                         [8.7, 18.3], [13, 17.7],
                         [12.8, 18.3], [13.3, 6],
                         [0.7, 6.3], [5.3, 5.5],
-                        [8.6, 6.3], [13.3, 5.5]];
+                        [8.6, 6.3], [13.3, 5.5]
+                        ];
+                        // [x1, y1]  ,  [x2, y2]
     constructor( habitacion, numJugadores, mode, ) {
         this.room = habitacion;
         this.currentRoom = habitacion;
@@ -537,15 +539,15 @@ class ControllerEnemy{
     // [x,x],[y,y]
     room1Spawn = [
         [-6, 18],
-        [3, 19]
+        [3, 19-3]
     ];
     room2Spawn = [
         [-28, -2],
-        [6, 17]
+        [6, 17-3]
     ];
     room3Spawn = [
         [-21, -10],
-        [23, 29]
+        [23, 31-23]
     ];
     constructor(object, room){
         this.mesh = object;
