@@ -2,8 +2,8 @@ var scene, camera, renderer, clock;
 var players = [];
 var keys = {};
 var isWorldReady = [ false, false , false];
-var distanceCamera = [18,24,15];
-var camPositions = [[0, 12], [-8, 10], [-16, 27]]
+var distanceCamera = [18,16,15];
+var camPositions = [[0, 12], [-14, 14], [-16, 27]]
 var rayCaster;
 var mixers = [];
 var actions = [];
@@ -286,6 +286,7 @@ function render() {
                 GameInstance.MiniGames.forEach((MiniGame, i) => {
                     if( MiniGame.near ){
                         scene.remove(MiniGame.mesh);
+                        MiniGame.completed = true;
                     }
                 });
             }
@@ -463,7 +464,7 @@ function setupScene() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60	, visibleSize.width / visibleSize.height, 0.1, 100);
     camera.position.x = 0;
-    camera.position.z = 0;
+    camera.position.z = 12;
     camera.position.y = GameInstance.camPosX;
     camera.rotation.x = THREE.Math.degToRad(-90);
 

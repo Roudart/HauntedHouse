@@ -20,6 +20,7 @@ class GameMode{
                 [1.5, -0.5, 13], [2.7, -0.5, 8,1],
                 [11.7, -0.5, 14], [12.5, -0.5, 10.8],
                 [6, -0.5, 13.7], [7.7, -0.5, 11.7]];    // POSICION 7!
+
     hab2Pos = [ [-23.5, 1, 18.2], [-13, 1,18.3] ,       // POSICION 0
                 [-23.5, 1, 16.5], [-10.8, 1, 16.3],     // POSICION 1 ... etc
                 [-23.7, 1, 14.7], [-20.1, 1, 14],
@@ -28,12 +29,13 @@ class GameMode{
                 [-7.2, 1.5, 8.6], [-5, 1.5, 7.3],
                 [-26.5, 1.5, 9],  [-26.6, 1.5, 6.6],
                 [-5, 1.5, 17.4],  [-4.8, 1.5, 14.7],
-                [-25.3, 3.0, 5.8],[-24.6, 3.0, 3.0],
-                [-21.3, 3.0, 2.9],[-20.6, 3.0, 2.25],
-                [-17.4, 3.0, 3.4],[-14.6, 3.0, 1.7],
-                [-19.5, 3.0, 0],  [-18.5, 3.0, -1.5],
-                [-16.8, 3.0, -1.1],[-13.8, 3.0, -1.3],
-                [-5.2, 3.0, 5.3], [-5, 3.0, 2.4]];       // POSICION 13!
+                [-23.5, 1, 18.2],[-13, 1,18.3],
+                [-23.5, 1, 16.5],[-10.8, 1, 16.3],
+                [-23.7, 1, 14.7],[-20.1, 1, 14],
+                [-16.6, 1.3, 13],  [-15.4, 1.3, 10.6],
+                [-19.3, 1, 7.1],[-12.7, 1, 7.3],
+                [-7.2, 1.5, 8.6], [-5, 1.5, 7.3]];       // POSICION 13!
+
     hab3Pos = [ [-13.2, 1, 24.3], [-12.8, 1, 23.9],
                 [-19.6, 1.5, 28.7], [-19, 1.5, 27.7],
                 [-19.4, 1.5, 26], [-19, 1.5, 25],
@@ -50,7 +52,7 @@ class GameMode{
                         [12.8, 18.3], [13.3, 6],
                         [0.7, 6.3], [5.3, 5.5],
                         [8.6, 6.3], [13.3, 5.5],
-                        [-29.7, 9.5],[-2, -1.7], //segunda habitación
+                        [-29.7, 8],[-2, -1.7], //segunda habitación
                         [-28.65, 23.5], [-17.2, 21],
                         [-14.75, 23.5], [-3.86, 21],
                         [-28.65, 22.4], [-27.32, 8.6],
@@ -71,18 +73,14 @@ class GameMode{
         this.objects = 3;
         this.mode = mode;
         this.numPlayers = numJugadores; 
+        this.dificulty = dificultad;
         if(this.mode == 1){
             this.GetMinigames();
+            if(this.dificulty == 2){this.minusVida();}
         }else{
             this.vidas = 1;
             document.getElementById("Corazon3").style.visibility = "hidden";
             document.getElementById("Corazon2").style.visibility = "hidden";
-        }
-        this.dificulty = dificultad;
-        if(this.dificulty == 1){
-            console.log("Facil...");
-        }else{
-            console.log("DIFICIL!! 0_0");
         }
         this.getCurrentRoom();
         this.GetRoomCollitions();
@@ -106,12 +104,12 @@ class GameMode{
 
     addEnemy(object, numberOfEnemies){
         for (let i = 0; i < numberOfEnemies; i++) {
-            this.Enemy.push(new Enemy(cloneFBX(object)));
+            this.Enemy.push(new Enemy(cloneFBX(object), this.dificulty));
         }
     }
 
     addEnemy2(object){
-        this.Enemy.push(new ControllerEnemy(object.clone(), this.room));
+        this.Enemy.push(new ControllerEnemy(object.clone(), this.room, this.dificulty));
     }
 
     checkBox(MiniGame){
@@ -418,9 +416,10 @@ class Enemy{
         [-18, 0, 30],
         [-18, 0, 24]
     ];
-    constructor(mesh){
+    constructor(mesh, dificultad){
         this.mesh = mesh;
         this.created = false;
+        this.dificulty = dificultad;
     }
 
     spawnEnemy1(scene, patrol, rotation, patrolRoom, currentRoom){
@@ -455,6 +454,10 @@ class Enemy{
             this.isMoving = true;
             this.attackAnimation = 0;
             this.attackTime = 8;
+            if(this.dificulty == 2){
+                this.speed = 0.3;
+                this.attackTime = 4;
+            }
             this.isAtacking = false;
             scene.add(this.mesh);
             this.collition = new RoundCollition(this.mesh.position.x, this.mesh.position.y, this.attackDistance);
@@ -568,12 +571,13 @@ class ControllerEnemy{
         [-21, -10],
         [23, 31-23]
     ];
-    constructor(object, room){
+    constructor(object, room, dificultad){
         this.mesh = object;
         this.room = room;
         this.spawn = this.getSpawn();
         this.spawnRate = 1;
         this.spawnTime = 0;
+        this.dificulty = dificultad;
     }
 
     getType(){
@@ -627,7 +631,7 @@ class ControllerEnemy{
             console.log("Spawn righty...");
             console.log("x: " + x + "z: " + y);
         }
-        this.Enemies.push(new EnemyWave(x, y,rotation,this.mesh, scene));
+        this.Enemies.push(new EnemyWave(x, y,rotation,this.mesh, scene, this.dificulty));
     }
 }
 
@@ -635,13 +639,14 @@ class EnemyWave{
     spawnTime = 10;
     speed = 1;
     attackDistance = 2;
-    constructor(posX, posY, rotation, mesh, scene){
+    constructor(posX, posY, rotation, mesh, scene, dificultad){
         this.mesh = mesh.clone();
         this.mesh.position.x = posX;
         this.mesh.position.z = posY;
         this.mesh.rotation.y = THREE.Math.degToRad(rotation);
         this.collition = new RoundCollition(this.mesh.position.x, this.mesh.position.z, this.attackDistance);
         this.speed = 3;
+        if(dificultad == 2){this.speed = 5;}
         scene.add(this.mesh);
     }
 
