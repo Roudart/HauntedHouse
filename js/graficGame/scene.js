@@ -2,8 +2,8 @@ var scene, camera, renderer, clock;
 var players = [];
 var keys = {};
 var isWorldReady = [ false, false , false];
-var distanceCamera = [18,24,8.5];
-var camPositions = [[0, 12], [-8, 10], [-16, 27]]
+var distanceCamera = [18,16,15];
+var camPositions = [[0, 12], [-14, 14], [-16, 27]]
 var rayCaster;
 var mixers = [];
 var actions = [];
@@ -21,44 +21,71 @@ $(document).ready(function(){
 
 
     var options = loadOptions()
-    GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo);
+    GameInstance = new GameMode(options.Mapa, options.Jugadores, options.Modo, options.Dificultad);
     setupScene();
-    timer = setTimer(10);
+    if(GameInstance.mode == 1){
+        timer = setTimer(10);
+    }else{
+        timer = setTimer2();
+    }
     rayCaster = new THREE.Raycaster();
-    isWorldReady[0] = true;
-   /*loadOBJWithMTL("assets/", "SceneMansion.obj", "SceneMansion.mtl", (object) => {
+    loadOBJWithMTL("assets/", "puertas_abiertas.obj", "puertas_abiertas.mtl", (object) => {
         object.rotation.y = THREE.Math.degToRad(90);
         scene.add(object);
         isWorldReady[0] = true;
-    });*/
+    });
+    if(GameInstance.mode == 1){
+        loadOBJWithMTL("assets/", "Reaper.obj", "Reaper.mtl", (object) => {
+            GameInstance.addEnemy(object, 3);
+        });
+    }else{
+        loadOBJWithMTL("assets/", "FlyingGhost.obj", "FlyingGhost.mtl", (object) => {
+            GameInstance.addEnemy2(object);
+        });
+    }
     loadOBJWithMTL("assets/", "key3.obj", "key3.mtl", (object) => {
-     object.position.x = 0;
-      object.position.z = 0;
-         object.name = "llave";
-        scene.add(object);
+        object.position.x = 0;
+        object.position.z = 0;
+        object.name = "llave";
      
         objetosConColision.push(object);
-        isWorldReady[1] = true;
+        var cont = 0;
+        isWorldReady[2] = true;
+        GameInstance.MiniGames.forEach(MiniGame => {
+            arreglollave[cont] = object.clone();
+            arreglollave[cont].position.x = MiniGame.posX;
+            arreglollave[cont].position.y = MiniGame.posY;
+            arreglollave[cont].position.z = MiniGame.posZ;
+            MiniGame.mesh = arreglollave[cont];
+            scene.add(arreglollave[cont]);
+            cont = cont + 1;
+        });
     });
     loadOBJWithMTL("assets/", "llaveAntigua.obj", "llaveAntigua.mtl", (object) => {
-     object.position.x = 0;
-      object.position.z = 0;
-         object.name = "llave2";
-        scene.add(object);
-     
+        object.position.x = 0;
+        object.position.z = 0;
+        object.name = "llave2";
+        GameInstance.CreateRoomKeys(object);
+        
         objetosConColision.push(object);
-        isWorldReady[1] = true;
+        isWorldReady[2] = true;
     });
     loadOBJWithMTL("assets/", "cofremaya.obj", "cofremaya.mtl", (object) => {
-     object.position.x = 0;
-      object.position.z = 0;
-         object.name = "cofre";
+        object.position.x = 7;
+        object.position.z = 4;
+        object.name = "cofre";
         scene.add(object);
      
         objetosConColision.push(object);
-       // isWorldReady[1] = true;
     });
     var FBXLoader = new THREE.FBXLoader();
+    // FBXLoader.load('assets/attackTEXTURED.fbx', (reaper) => {
+    //     reaper.mixer = new THREE.AnimationMixer(reaper);
+    //     GameInstance.addEnemy(reaper, 3);
+
+    //     var action = reaper.mixer.clipAction(reaper.animations[0]);
+    //     action.play();
+    // }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded reaper')});
     FBXLoader.load('obj/Anim_SoloCorrer.fbx', (personaje) => {
         personaje.mixer = new THREE.AnimationMixer(personaje);
         mixers.push(personaje.mixer);
@@ -150,7 +177,6 @@ $(document).ready(function(){
                                 var action = personaje.mixer.clipAction(personaAni.animations[0]);
                                 action.play();
                                 actions2.push(action);
-                                isWorldReady[2] = true;
                 
                             }, (xhr) => {console.log((xhr.loaded / xhr.total) * 100 + '% loaded')}, 
                             (error) =>{
@@ -210,7 +236,6 @@ function render() {
     if(GameInstance != 0){
         if(!GameInstance.isOver()){
             if(modelReady){
-                
                 GameInstance.MiniGames.forEach(MiniGame => {
                     MiniGame.NearMinigame(players[0].position);
                 });
@@ -219,6 +244,26 @@ function render() {
                     players[i].yaw = 0;
                     players[i].forward = 0;
                     players[i].status = "Iddle"
+                }
+            }
+            var allReady;
+            for (let i = 0; i < isWorldReady.length; i++) {
+                if(isWorldReady[i]){allReady = true}else{ allReady = false; break;}
+            }
+            if(allReady){
+                if(GameInstance.Enemy){
+                    if(GameInstance.mode == 1){
+                        if(!GameInstance.Enemy[0].created) GameInstance.Enemy[0].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 1, GameInstance.currentRoom);
+                        if(!GameInstance.Enemy[1].created) GameInstance.Enemy[1].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 2, GameInstance.currentRoom);
+                        if(!GameInstance.Enemy[2].created) GameInstance.Enemy[2].spawnEnemy1(scene, 0, THREE.Math.degToRad(0), 3, GameInstance.currentRoom);
+                        for (let i = 0; i < GameInstance.Enemy.length; i++) {
+                            if(GameInstance.Enemy[i].created){
+                                GameInstance.updateEnemy(deltaTime, players);
+                            }
+                        }
+                    }else{
+                        GameInstance.updateEnemy(deltaTime, players, scene);
+                    }
                 }
             }
             // Player 1
@@ -242,7 +287,6 @@ function render() {
                     if( MiniGame.near ){
                         scene.remove(MiniGame.mesh);
                         MiniGame.completed = true;
-                        // OpenModal("JuegoAhorcado");
                     }
                 });
             }
@@ -280,6 +324,7 @@ function render() {
                 }
             }
 
+
             for (let i = 0; i < players.length; i++) {
                 players[i].rotation.y += players[i].yaw * deltaTime;
                 var movement = players[i].translateZ(players[i].forward * deltaTime);
@@ -288,16 +333,14 @@ function render() {
                         players[i].translateZ(-players[i].forward * deltaTime);
                     }
                 });
-                camera.position.x = players[i].position.x;
-                camera.position.z = players[i].position.z;
-                camera.position.y = players[i].position.y + 20;
             }
 
             
         }else{ // Se acabó el juego
             clearInterval(timer);
-            GameInstance.saveScore(scoreTime, JSON.parse(localStorage.getItem("Usuario")));
-            // OpenModal("Score");
+
+            if(GameInstance.mode == 1){GameInstance.saveScore(scoreTime, JSON.parse(localStorage.getItem("Usuario")));}
+            else{GameInstance.saveScore(time, JSON.parse(localStorage.getItem("Usuario")));}
             for (let i = 0; i < players.length; i++) {
                 if(GameInstance.GameStatus){
                     players[i].status = "Win";
@@ -421,7 +464,7 @@ function setupScene() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60	, visibleSize.width / visibleSize.height, 0.1, 100);
     camera.position.x = 0;
-    camera.position.z = 0;
+    camera.position.z = 12;
     camera.position.y = GameInstance.camPosX;
     camera.rotation.x = THREE.Math.degToRad(-90);
 
@@ -452,9 +495,8 @@ function setupScene() {
             arreglollave[cont].position.x = MiniGame.posX;
             arreglollave[cont].position.y = MiniGame.posY;
             arreglollave[cont].position.z = MiniGame.posZ;
-            
-            //scene.add(arreglollave[cont]);
-            //scene.add(cofre);
+            scene.add(arreglollave[cont]);
+            scene.add(cofre);
             cont = cont + 1;
         });
     }
@@ -518,6 +560,17 @@ function setTimer(minutes){
         GameInstance.GameStatus = false;
         document.getElementById("demo").innerHTML = "You Loose!";
     }
+    }, 1000);
+    return x;
+}
+
+function setTimer2(){
+    score = 0;
+    time = 0;
+    var x = setInterval(function() {
+        score += 1000;
+        time += 1;
+        document.getElementById("demo").innerHTML = time;
     }, 1000);
     return x;
 }

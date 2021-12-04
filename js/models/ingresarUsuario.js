@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    $(".btn-confirm").click(function(){
+    $("#btn-confirm").click(function(){
 
         // Confirmamos las credenciales
 
@@ -11,5 +11,6 @@ $(document).ready(function(){
         );
         
         PosibleUser.devolverUsuario(PosibleUser);
+          window.location.href="menu_principal.html";
     });
 });
